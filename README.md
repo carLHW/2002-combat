@@ -17,12 +17,10 @@ class Combatant {
   +getActions() List~Action~
   +getStatusEffects() List~StatusEffect~
   +getCooldownTracker() CooldownTracker
-  +receiveDamage(amount)
-  +heal(amount)
-  +modifyAttack(delta)
-  +modifyDefense(delta)
-  +addStatusEffect(effect, context)
-  +removeExpiredEffects(context)
+  +receiveDamage(amount) void
+  +heal(amount) void
+  +addStatusEffect(effect, context) void
+  +removeExpiredEffects(context) void
   +canAct(context) boolean
   +chooseAction(view) Action
   +chooseTarget(action, view, context) ActionTarget
@@ -32,19 +30,26 @@ class Action {
   <<interface>>
   +getName() String
   +canExecute(user, battleView) boolean
-  +execute(user, target)
+  +execute(user, target) void
 }
 
 class StatusEffect {
   <<interface>>
   +getName() String
-  +onApply(target, context)
-  +onTurnStart(target, context)
-  +onTurnEnd(target, context)
-  +onRoundEnd(target, context)
+  +onApply(target, context) void
+  +onTurnStart(target, context) void
+  +onTurnEnd(target, context) void
+  +onRoundEnd(target, context) void
   +preventsAction(target, context) boolean
   +isExpired() boolean
-  +onExpire(target, context)
+  +onExpire(target, context) void
+}
+
+class Item {
+  <<interface>>
+  +getName() String
+  +canUse(user, battleView) boolean
+  +use(user, target) void
 }
 
 class TurnOrderStrategy {
@@ -52,43 +57,27 @@ class TurnOrderStrategy {
   +sort(combatants) List~Combatant~
 }
 
-class CooldownTracker {
-  <<interface>>
-  +isReady(key) boolean
-  +startCooldown(key, turns)
-  +reduceCooldownOnTurnTaken()
-  +getRemainingTurns(key) int
-}
-
-class BattleContext {
-  <<interface>>
-  +log(message)
-  +getLivingOpponentsOf(combatant) List~Combatant~
-  +getLivingAlliesOf(combatant) List~Combatant~
-  +registerDefeat(target, defeatedBy)
-  +getRoundNumber() int
-}
-
-class BattleView {
-  <<interface>>
-  +getRoundNumber() int
-  +getLivingCombatants() List~Combatant~
-  +getLivingOpponentsOf(combatant) List~Combatant~
-  +getLivingAlliesOf(combatant) List~Combatant~
-}
-
-class ActionTarget {
-  <<interface>>
-  +primaryTarget() Combatant
-  +targets() List~Combatant~
-  +context() BattleContext
-}
-
 class AbstractCombatant {
   <<abstract>>
+  -name : String
+  -team : Team
+  -maxHp : int
+  -currentHp : int
+  -attack : int
+  -defense : int
+  -speed : int
+  -actions : List~Action~
+  -statusEffects : List~StatusEffect~
+  -cooldownTracker : CooldownTracker
 }
 
-class AbstractStatusEffect {
+class AbstractPlayer {
+  <<abstract>>
+  -inventory : Inventory
+  +getInventory() Inventory
+}
+
+class AbstractEnemy {
   <<abstract>>
 }
 
@@ -97,77 +86,132 @@ class Wizard
 class Goblin
 class Wolf
 
-class BasicAttackAction
-class DefendAction
-class ShieldBashAction
-class ArcaneBlastAction
+class Inventory {
+  -items : List~Item~
+  +addItem(item) void
+  +getItems() List~Item~
+  +hasItems() boolean
+  +consume(item) void
+}
 
-class DefendStatusEffect
+class BasicAttackAction {
+  +getName() String
+  +execute(user, target) void
+}
+
+class DefendAction {
+  +getName() String
+  +execute(user, target) void
+}
+
+class ShieldBashAction {
+  +getName() String
+  +execute(user, target) void
+}
+
+class ArcaneBlastAction {
+  +getName() String
+  +execute(user, target) void
+}
+
+class UseItemAction {
+  +getName() String
+  +execute(user, target) void
+}
+
+class AbstractStatusEffect {
+  <<abstract>>
+  -remainingRounds : int
+}
+
+class DefendStatusEffect {
+  -defenseBonus : int
+}
+
 class StunStatusEffect
 
-class SimpleCooldownTracker
-class SimpleActionTarget
-class SpeedTurnOrderStrategy
+class PotionItem {
+  -healAmount : int
+}
+
+class CooldownTracker {
+  <<interface>>
+  +isReady(key) boolean
+  +startCooldown(key, turns) void
+  +reduceCooldownOnTurnTaken() void
+  +getRemainingTurns(key) int
+}
 
 class BattleEngine {
   -turnOrderStrategy : TurnOrderStrategy
   -roster : List~Combatant~
   -backupSpawn : List~Combatant~
-  -battleContext : DefaultBattleContext
-  -battleView : DefaultBattleView
+  -roundNumber : int
+  -backupSpawnTriggered : boolean
   +runBattle() BattleResult
 }
 
-class DefaultBattleContext
-class DefaultBattleView
-class BattleResult
+class BattleResult {
+  +winner : Team
+  +roundsCompleted : int
+}
+
 class Team {
   <<enumeration>>
   PLAYER
   ENEMY
 }
 
-Combatant <|.. AbstractCombatant
-AbstractCombatant <|-- Warrior
-AbstractCombatant <|-- Wizard
-AbstractCombatant <|-- Goblin
-AbstractCombatant <|-- Wolf
+class BattleContext {
+  <<interface>>
+}
 
-StatusEffect <|.. AbstractStatusEffect
-AbstractStatusEffect <|-- DefendStatusEffect
-AbstractStatusEffect <|-- StunStatusEffect
+class BattleView {
+  <<interface>>
+}
+
+class ActionTarget {
+  <<interface>>
+}
+
+Combatant <|.. AbstractCombatant
+AbstractCombatant <|-- AbstractPlayer
+AbstractCombatant <|-- AbstractEnemy
+
+AbstractPlayer <|-- Warrior
+AbstractPlayer <|-- Wizard
+AbstractEnemy <|-- Goblin
+AbstractEnemy <|-- Wolf
 
 Action <|.. BasicAttackAction
 Action <|.. DefendAction
 Action <|.. ShieldBashAction
 Action <|.. ArcaneBlastAction
+Action <|.. UseItemAction
 
-CooldownTracker <|.. SimpleCooldownTracker
-ActionTarget <|.. SimpleActionTarget
-TurnOrderStrategy <|.. SpeedTurnOrderStrategy
-BattleContext <|.. DefaultBattleContext
-BattleView <|.. DefaultBattleView
+StatusEffect <|.. AbstractStatusEffect
+AbstractStatusEffect <|-- DefendStatusEffect
+AbstractStatusEffect <|-- StunStatusEffect
 
-BattleEngine *-- "1" TurnOrderStrategy : strategy
-BattleEngine *-- "1" DefaultBattleContext : context
-BattleEngine *-- "1" DefaultBattleView : view
-BattleEngine o-- "1..*" Combatant : roster
-BattleEngine o-- "0..*" Combatant : backupSpawn
-BattleEngine --> "1" BattleResult : returns
+Item <|.. PotionItem
 
-AbstractCombatant *-- "1" CooldownTracker : cooldowns
-AbstractCombatant o-- "0..*" Action : actions
-AbstractCombatant o-- "0..*" StatusEffect : effects
-AbstractCombatant --> "1" Team : belongs to
+AbstractCombatant *-- "1" CooldownTracker
+AbstractCombatant o-- "0..*" Action
+AbstractCombatant o-- "0..*" StatusEffect
+AbstractCombatant --> "1" Team
 
-Action --> Combatant : uses
-Action --> ActionTarget : executes with
-ActionTarget --> "0..*" Combatant : selected targets
-ActionTarget --> "1" BattleContext : context
+AbstractPlayer *-- "1" Inventory
+Inventory o-- "0..*" Item
 
-StatusEffect --> Combatant : affects
-StatusEffect --> BattleContext : reports via
+BattleEngine *-- "1" TurnOrderStrategy
+BattleEngine o-- "1..*" Combatant : current combatants
+BattleEngine o-- "0..*" Combatant : backup spawn
+BattleEngine --> "1" BattleResult
 
-DefaultBattleContext --> BattleEngine : delegates to
-DefaultBattleView --> BattleEngine : reads from
+Action --> Combatant
+Action --> ActionTarget
+Item --> AbstractPlayer
+StatusEffect --> Combatant
+BattleEngine ..> BattleContext
+BattleEngine ..> BattleView
 ```
