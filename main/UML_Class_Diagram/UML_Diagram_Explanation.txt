@@ -1,0 +1,76 @@
+Turn-Based Combat Arena UML Guide
+
+Purpose
+- This file explains the simplified UML in a short and clear way.
+
+Main Idea
+- The design is split into:
+  - battle participants
+  - battle actions
+  - status effects
+  - items
+  - battle flow
+  - CLI
+
+Hierarchy
+- `Combatant` is the main interface for anything that fights.
+- `AbstractCombatant` is the shared base class for fighters.
+- `AbstractPlayer` and `AbstractEnemy` split the structure into player and enemy branches.
+- `Warrior` and `Wizard` are player classes.
+- `Goblin` and `Wolf` are enemy classes.
+
+Actions
+- `Action` is the interface for turn actions.
+- `BasicAttackAction`, `DefendAction`, `ShieldBashAction`, `ArcaneBlastAction`, and `UseItemAction` implement `Action`.
+- `BattleEngine` should call `action.execute(user, target)` instead of hardcoding every action rule.
+
+Status Effects
+- `StatusEffect` is the interface for temporary battle effects.
+- `AbstractStatusEffect` is the shared base for effects with duration.
+- `DefendStatusEffect` and `StunStatusEffect` are concrete effects.
+
+Items and Inventory
+- `Item` is the interface for usable items.
+- `Inventory` stores a player's items.
+- `AbstractPlayer` owns one `Inventory`.
+- The full code includes:
+  - `PotionItem`
+  - `PowerStoneItem`
+  - `SmokeBombItem`
+- The simplified UML may show only the main item side without expanding every item class.
+
+Battle Flow
+- `BattleEngine` controls rounds, turns, win/lose checks, and backup spawn.
+- `TurnOrderStrategy` decides the action order.
+- `Difficulty` and `LevelFactory` decide which enemies appear.
+
+CLI
+- `GameCLI` is the boundary class for menus and player input.
+- `Main` starts the program.
+- The CLI should stay separate from battle logic.
+
+Current Repo State
+- The structure is already set up.
+- The CLI area is more prepared than the other areas.
+- Shared interfaces already exist.
+- Abstract/base classes already have starter code.
+- Most feature areas still contain starter skeletons and TODO markers.
+
+How To Read The UML
+- First read the hierarchy:
+  - `Combatant -> AbstractCombatant -> AbstractPlayer / AbstractEnemy -> concrete classes`
+- Then read the action side:
+  - `Action -> concrete action classes`
+- Then read the item/effect side:
+  - `Item -> item classes`
+  - `StatusEffect -> effect classes`
+- Finally read the control side:
+  - `BattleEngine`
+  - `TurnOrderStrategy`
+  - `Difficulty / LevelFactory`
+  - `GameCLI`
+
+Conclusion
+- The UML shows the main relationships and responsibilities.
+- It is not meant to show every implementation detail.
+- It is meant to show the structure of the game clearly.
