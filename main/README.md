@@ -21,8 +21,6 @@ If you are new to the project, read these in order:
 ## What The Project Is
 
 - This is a Java turn-based combat game.
-- It is based on:
-  - `Assignment PDF/SC2002 Turn-based Combat Assignment v3.pdf`
 - The game is command-line based.
 
 ## What Is Already Decided
