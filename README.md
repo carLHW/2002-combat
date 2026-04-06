@@ -1,10 +1,17 @@
 # Turn-Based Combat Arena
 
-The main project documentation is in:
+## Quick links:
 
-- [`main/README.md`](main/README.md)
+- [Main Project Guide](main/README.md)
+- [UML Class Diagram Source](main/UML_Class_Diagram/UML_Class_Diagram_Simplified.md)
+- [UML Class Diagram SVG](main/UML_Class_Diagram/UML_Class_Diagram.svg)
+- [UML Explanation](main/UML_Class_Diagram/UML_Diagram_Explanation.txt)
+- [Source Code](src/)
 
-Recommended reading order:
+Main code is in `src/`.
+Main documentation is in `main/`.
+
+## Recommended reading order:
 
 - `main/README.md`
 - `main/UML_Class_Diagram/UML_Class_Diagram_Simplified.md`
@@ -15,6 +22,6 @@ Recommended reading order:
 - `main/TEAM_OWNERSHIP.md`
 - `main/TEAM_STARTUP.md`
 
-Source code is in:
+## UML Diagram
 
-- `src/`
+[![UML Class Diagram](main/UML_Class_Diagram/UML_Class_Diagram.png)](main/UML_Class_Diagram/UML_Class_Diagram.svg)
