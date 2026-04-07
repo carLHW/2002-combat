@@ -10,7 +10,7 @@ import model.AbstractPlayer;
 
 public final class Wizard extends AbstractPlayer {
     public Wizard(String name) {
-        super(name, 0, 0, 0, 0);
+        super(name, 200, 50, 10, 20);
     }
     public Action UseBasicAttack(Combatant target){
         return new BasicAttackAction(target);
