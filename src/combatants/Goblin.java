@@ -9,7 +9,7 @@ public final class Goblin extends AbstractEnemy {
         super(name, 55, 35, 15, 25);
     }
 
-    public Action DoBasicAttack(){
+    public Action UseBasicAttack(){
         return new BasicAttackAction();
     }
 }
