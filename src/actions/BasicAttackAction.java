@@ -13,12 +13,16 @@ public final class BasicAttackAction implements Action {
 
     @Override
     public boolean canExecute(Combatant user, BattleView battleView) {
-        // TODO: decide when BasicAttack can be used
-        return true;
+        return user.isAlive();
     }
 
     @Override
     public void execute(Combatant user, ActionTarget target) {
-        // TODO: implement BasicAttackAction
+        Combatant enemy = target.primaryTarget();
+        int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
+        enemy.receiveDamage(dmg);
+        if (!enemy.isAlive()){
+            target.context().registerDefeat(enemy, user);
+        }
     }
 }
