@@ -6,6 +6,7 @@ import actions.DefendAction;
 import actions.UseItemAction;
 import api.Combatant;
 import api.Item;
+import api.Action;
 import model.AbstractPlayer;
 
 public final class Wizard extends AbstractPlayer {
