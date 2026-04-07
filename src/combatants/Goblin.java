@@ -1,11 +1,15 @@
 package combatants;
 
+import actions.BasicAttackAction;
+import api.Action;
 import model.AbstractEnemy;
 
 public final class Goblin extends AbstractEnemy {
     public Goblin(String name) {
-        super(name, 0, 0, 0, 0);
-        // TODO: replace placeholder stats with Goblin stats
-        // TODO: add Goblin actions
+        super(name, 55, 35, 15, 25);
+    }
+
+    public Action DoBasicAttack(){
+        return new BasicAttackAction();
     }
 }
