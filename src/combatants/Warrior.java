@@ -15,7 +15,8 @@ public final class Warrior extends AbstractPlayer {
         super(name, 260, 40, 20, 30);
     }
     public Action UseBasicAttack(Combatant target){
-        return new BasicAttackAction(target);
+        Combatant user = this.getName();
+        return new BasicAttackAction(user, target);
     }
     public Action UseDefend(){
         return new DefendAction();
