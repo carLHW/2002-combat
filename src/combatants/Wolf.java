@@ -1,11 +1,14 @@
 package combatants;
 
+import actions.BasicAttackAction;
+import api.Action;
 import model.AbstractEnemy;
 
 public final class Wolf extends AbstractEnemy {
     public Wolf(String name) {
-        super(name, 0, 0, 0, 0);
-        // TODO: replace placeholder stats with Wolf stats
-        // TODO: add Wolf actions
+        super(name, 40, 45, 5, 35);
+    }
+    public Action DoBasicAttack(){
+        return new BasicAttackAction();
     }
 }
