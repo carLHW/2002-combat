@@ -13,7 +13,7 @@ public final class BasicAttackAction implements Action {
 
     @Override
     public boolean canExecute(Combatant user, BattleView battleView) {
-        return user.canAct();
+        return user.canAct(null);
     }
 
     @Override
