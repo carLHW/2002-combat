@@ -19,6 +19,6 @@ public final class DefendAction implements Action {
 
     @Override
     public void execute(Combatant user, ActionTarget target) {
-        user.addStatusEffect(new DefendStatusEffect(10), null);
+        user.addStatusEffect(new DefendStatusEffect(10), target.context());
     }
 }
