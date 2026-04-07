@@ -4,6 +4,7 @@ import api.Action;
 import api.ActionTarget;
 import api.BattleView;
 import api.Combatant;
+import java.util.List;
 
 public final class ArcaneBlastAction implements Action {
     @Override
@@ -13,12 +14,24 @@ public final class ArcaneBlastAction implements Action {
 
     @Override
     public boolean canExecute(Combatant user, BattleView battleView) {
-        // TODO: add cooldown check
-        return true;
+        return user.isAlive() && user.getCooldownTracker().isReady(getName());
     }
 
     @Override
     public void execute(Combatant user, ActionTarget target) {
-        // TODO: implement ArcaneBlastAction
+        List<Combatant> targets = target.targets();
+        int kills = 0;
+        for (Combatant enemy : targets){
+            int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
+            enemy.receiveDamage(dmg);
+            if (!enemy.isAlive()){
+                kills++;
+                target.context().registerDefeat(enemy, user);
+            }
+        }
+        if (kills>0){
+            user.modifyAttack(kills*10);
+        }
+        user.getCooldownTracker().startCooldown(getName(), 3);
     }
 }

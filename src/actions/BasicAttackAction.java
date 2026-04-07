@@ -13,18 +13,16 @@ public final class BasicAttackAction implements Action {
 
     @Override
     public boolean canExecute(Combatant user, BattleView battleView) {
-        return user.canAct(null);
+        return user.isAlive();
     }
 
     @Override
     public void execute(Combatant user, ActionTarget target) {
-        Combatant Target = target.primaryTarget();
-        if (Target.isAlive()){
-            int dmg = Math.max(0, user.getAttack() - Target.getDefense());
-            Target.receiveDamage(dmg);
+        Combatant enemy = target.primaryTarget();
+        int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
+        enemy.receiveDamage(dmg);
+        if (!enemy.isAlive()){
+            target.context().registerDefeat(enemy, user);
         }
     }
 }
-
-// do i need to implement print lines
-//not sure how to implement canAct
