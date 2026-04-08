@@ -1,5 +1,7 @@
 package actions;
 
+import java.util.List;
+
 import api.Action;
 import api.ActionTarget;
 import api.BattleView;
@@ -13,7 +15,11 @@ public final class BasicAttackAction implements Action {
 
     @Override
     public boolean canExecute(Combatant user, BattleView battleView) {
-        return user.isAlive();
+        if (!user.isAlive() || !user.canAct(null)){
+            return false;
+        }
+        List<Combatant> enemies = battleView.getLivingOpponentsOf(user);
+        return !enemies.isEmpty();
     }
 
     @Override
