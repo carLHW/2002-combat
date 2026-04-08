@@ -5,31 +5,29 @@ import api.Combatant;
 import java.util.List;
 
 public final class DefaultBattleView implements BattleView {
+    private final BattleEngine battleEngine;
+
     public DefaultBattleView(BattleEngine battleEngine) {
-        // TODO: store battle engine reference
+        this.battleEngine = battleEngine;
     }
 
     @Override
     public int getRoundNumber() {
-        // TODO: implement battle view
-        return 0;
+        return battleEngine.getRoundNumber();
     }
 
     @Override
     public List<Combatant> getLivingCombatants() {
-        // TODO: implement battle view
-        return List.of();
+        return battleEngine.getLivingCombatants();
     }
 
     @Override
     public List<Combatant> getLivingOpponentsOf(Combatant combatant) {
-        // TODO: implement battle view
-        return List.of();
+        return battleEngine.getLivingOpponentsOf(combatant);
     }
 
     @Override
     public List<Combatant> getLivingAlliesOf(Combatant combatant) {
-        // TODO: implement battle view
-        return List.of();
+        return battleEngine.getLivingAlliesOf(combatant);
     }
 }
