@@ -36,11 +36,9 @@ public final class ArcaneBlastAction implements Action {
                 }
             }
         }
-        
+
         if (kills>0){
             user.modifyAttack(kills*10);
         }
-
-        user.getCooldownTracker().startCooldown(getName(), 3);
     }
 }
