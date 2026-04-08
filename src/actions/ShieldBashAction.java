@@ -36,8 +36,6 @@ public final class ShieldBashAction implements Action {
             else {
                 enemy.addStatusEffect(new StunStatusEffect(2), target.context());
             }
-            
-            user.getCooldownTracker().startCooldown(getName(), 3);
         }
     }
 }
