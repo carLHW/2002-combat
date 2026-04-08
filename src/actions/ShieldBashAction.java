@@ -11,7 +11,7 @@ import effects.StunStatusEffect;
 public final class ShieldBashAction implements Action {
     @Override
     public String getName() {
-        return "ShieldBash";
+        return "Shield Bash";
     }
 
     @Override
@@ -26,14 +26,18 @@ public final class ShieldBashAction implements Action {
     @Override
     public void execute(Combatant user, ActionTarget target) {
         Combatant enemy = target.primaryTarget();
-        int dmg = Math.max(0, user.getAttack()-enemy.getDefense());
-        enemy.receiveDamage(dmg);
-        if (!enemy.isAlive()){
-            target.context().registerDefeat(enemy, user);
+        if (enemy != null && enemy.isAlive()) {
+            int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
+            enemy.receiveDamage(dmg);
+
+            if (!enemy.isAlive()){
+                target.context().registerDefeat(enemy, user);
+            }
+            else {
+                enemy.addStatusEffect(new StunStatusEffect(2), target.context());
+            }
+            
+            user.getCooldownTracker().startCooldown(getName(), 3);
         }
-        else {
-            enemy.addStatusEffect(new StunStatusEffect(2), target.context());
-        }
-        user.getCooldownTracker().startCooldown(getName(), 3);
     }
 }
