@@ -1,5 +1,7 @@
 package actions;
 
+import java.util.List;
+
 import api.Action;
 import api.ActionTarget;
 import api.BattleView;
@@ -14,7 +16,11 @@ public final class ShieldBashAction implements Action {
 
     @Override
     public boolean canExecute(Combatant user, BattleView battleView) {
-        return user.isAlive() && user.getCooldownTracker().isReady(getName());
+        if (!user.isAlive() || !user.canAct(null)){
+            return false;
+        }
+        List<Combatant> enemies = battleView.getLivingOpponentsOf(user);
+        return !enemies.isEmpty();
     }
 
     @Override
