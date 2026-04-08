@@ -14,7 +14,7 @@ public final class DefendAction implements Action {
 
     @Override
     public boolean canExecute(Combatant user, BattleView battleView) {
-        return user.isAlive();
+        return user.isAlive() && user.canAct(null);
     }
 
     @Override
