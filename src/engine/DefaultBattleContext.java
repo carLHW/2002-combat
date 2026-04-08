@@ -5,35 +5,39 @@ import api.Combatant;
 import java.util.List;
 
 public final class DefaultBattleContext implements BattleContext {
+    private final BattleEngine battleEngine;
+
     public DefaultBattleContext(BattleEngine battleEngine) {
-        // TODO: store battle engine reference
+        this.battleEngine = battleEngine;
     }
 
     @Override
     public void log(String message) {
-        // TODO: connect logging to engine or CLI
+        // Simple console output for a first-year assignment
+        System.out.println(message);
     }
 
     @Override
     public List<Combatant> getLivingOpponentsOf(Combatant combatant) {
-        // TODO: implement battle context
-        return List.of();
+        // Pass the request directly to the engine
+        return battleEngine.getLivingOpponentsOf(combatant);
     }
 
     @Override
     public List<Combatant> getLivingAlliesOf(Combatant combatant) {
-        // TODO: implement battle context
-        return List.of();
+        // Pass the request directly to the engine
+        return battleEngine.getLivingAlliesOf(combatant);
     }
 
     @Override
     public void registerDefeat(Combatant target, Combatant defeatedBy) {
-        // TODO: implement defeat handling
+        // The engine handles the actual alive/dead states based on HP,
+        // so we just use this to announce what happened to the console.
+        log(target.getName() + " was defeated by " + defeatedBy.getName() + "!");
     }
 
     @Override
     public int getRoundNumber() {
-        // TODO: implement round lookup
-        return 0;
+        return battleEngine.getRoundNumber();
     }
 }
