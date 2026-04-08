@@ -30,7 +30,7 @@ public final class Inventory {
     }
 
     public void consume(Item item) {
-        items.remove(item)
+        items.remove(item);
         // TODO: remove the used item
     }
 }
