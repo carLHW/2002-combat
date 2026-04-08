@@ -9,7 +9,7 @@ import java.util.List;
 public final class ArcaneBlastAction implements Action {
     @Override
     public String getName() {
-        return "ArcaneBlast";
+        return "Arcane Blast";
     }
 
     @Override
@@ -23,19 +23,24 @@ public final class ArcaneBlastAction implements Action {
 
     @Override
     public void execute(Combatant user, ActionTarget target) {
-        List<Combatant> targets = target.targets();
+        List<Combatant> enemies = target.targets();
         int kills = 0;
-        for (Combatant enemy : targets){
-            int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
-            enemy.receiveDamage(dmg);
-            if (!enemy.isAlive()){
-                kills++;
-                target.context().registerDefeat(enemy, user);
+        for (Combatant enemy : enemies){
+            if (enemy != null && enemy.isAlive()){
+                int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
+                enemy.receiveDamage(dmg);
+
+                if (!enemy.isAlive()){
+                    kills++;
+                    target.context().registerDefeat(enemy, user);
+                }
             }
         }
+        
         if (kills>0){
             user.modifyAttack(kills*10);
         }
+
         user.getCooldownTracker().startCooldown(getName(), 3);
     }
 }

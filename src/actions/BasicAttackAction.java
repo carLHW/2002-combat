@@ -25,10 +25,13 @@ public final class BasicAttackAction implements Action {
     @Override
     public void execute(Combatant user, ActionTarget target) {
         Combatant enemy = target.primaryTarget();
-        int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
-        enemy.receiveDamage(dmg);
-        if (!enemy.isAlive()){
-            target.context().registerDefeat(enemy, user);
+        if (enemy != null && enemy.isAlive()){
+            int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
+            enemy.receiveDamage(dmg);
+            
+            if (!enemy.isAlive()){
+                target.context().registerDefeat(enemy, user);
+            }
         }
     }
 }
