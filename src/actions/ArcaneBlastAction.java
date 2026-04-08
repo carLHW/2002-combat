@@ -24,7 +24,7 @@ public final class ArcaneBlastAction implements Action {
     @Override
     public void execute(Combatant user, ActionTarget target) {
         List<Combatant> enemies = target.targets();
-        System.out.print(user.getName() + " → Arcane Blast → All Enemies: ");
+        String logMsg = user.getName() + " → Arcane Blast → All Enemies: ";
 
         for (int i = 0; i < enemies.size(); i++) {
             Combatant enemy = enemies.get(i);
@@ -35,23 +35,22 @@ public final class ArcaneBlastAction implements Action {
                 enemy.receiveDamage(dmg);
                 int newHp = enemy.getCurrentHp();
 
-                System.out.print(enemy.getName() + " HP: " + oldHp + " → " + newHp);
+                logMsg += enemy.getName() + " HP: " + oldHp + " → " + newHp;
 
                 if (!enemy.isAlive()) {
-                    System.out.print(" X ELIMINATED");
+                    logMsg += " X ELIMINATED";
                     target.context().registerDefeat(enemy, user);
                     user.modifyAttack(10); 
-                    System.out.print(" (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + dmg + ")");
-                    System.out.print(" | ATK: " + oldAtk + " → " + user.getAttack() + " (+10)");
+                    logMsg += " (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + dmg + ") | ATK: " + oldAtk + " → " + user.getAttack() + " (+10)";
                 }   
                 else {
-                System.out.print(" (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + dmg + ")");
+                logMsg += " (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + dmg + ")";
                 }
 
-                if (i < enemies.size() - 1) System.out.print(" | ");
+                if (i < enemies.size() - 1) logMsg += " | ";
             }
         }
-        System.out.println();
+        target.context().log(logMsg);
     }
 
 }
