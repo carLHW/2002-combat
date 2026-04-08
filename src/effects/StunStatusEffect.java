@@ -17,6 +17,11 @@ public final class StunStatusEffect extends AbstractStatusEffect {
     @Override
     public boolean preventsAction(Combatant target, BattleContext battleContext) {
         // TODO: implement StunStatusEffect
-        return false;
+        return getRemainingRounds() > 0;
+    }
+
+    @Override
+    public void onTurnEnd(Combatant target, BattleContext battleContext) {
+        reduceRoundsByOne();
     }
 }
