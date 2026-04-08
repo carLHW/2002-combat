@@ -4,9 +4,9 @@ import api.Combatant;
 import java.util.ArrayList;
 import java.util.List;
 
-// We assume these are in the model package based on your architecture
-import model.Goblin;
-import model.Wolf;
+// We updated these imports to point to your teammates' package!
+import combatants.Goblin;
+import combatants.Wolf;
 
 public final class LevelFactory {
     
