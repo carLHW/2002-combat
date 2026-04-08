@@ -1,6 +1,9 @@
 package model;
 
 import api.CooldownTracker;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public final class SimpleCooldownTracker implements CooldownTracker {
     @Override
