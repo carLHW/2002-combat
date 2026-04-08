@@ -5,23 +5,39 @@ import api.CooldownTracker;
 public final class SimpleCooldownTracker implements CooldownTracker {
     @Override
     public boolean isReady(String key) {
-        // TODO: implement cooldown readiness
-        return true;
+        // implement cooldown readiness
+        return getRemainingTurns(key) <= 0;
     }
 
     @Override
     public void startCooldown(String key, int turns) {
-        // TODO: implement cooldown start
+        // implement cooldown start
+        cooldowns.put(key, Math.max(0, turns));
     }
 
     @Override
     public void reduceCooldownOnTurnTaken() {
-        // TODO: implement cooldown reduction
+        // implement cooldown reduction
+        Iterator<Map.Entry<String, Integer>> iterator = cooldowns.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, Integer> entry = iterator.next();
+            int remaining = entry.getValue();
+
+            if (remaining > 0) {
+                remaining--;
+            }
+
+            if (remaining <= 0) {
+                iterator.remove();
+            } else {
+                entry.setValue(remaining);
+            }
+        }
     }
 
     @Override
     public int getRemainingTurns(String key) {
-        // TODO: implement cooldown lookup
-        return 0;
+        // implement cooldown lookup
+        return cooldowns.getOrDefault(key, 0);
     }
 }
