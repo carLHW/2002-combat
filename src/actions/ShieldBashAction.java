@@ -32,24 +32,24 @@ public final class ShieldBashAction implements Action {
             enemy.receiveDamage(dmg);
             int newHp = enemy.getCurrentHp();
 
-            System.out.print(user.getName() + " → Shield Bash → " + enemy.getName() + 
-            ": HP: " + oldHp + " → " + newHp);
+            String logMsg = user.getName() + " → Shield Bash → " + enemy.getName() + 
+            ": HP: " + oldHp + " → " + newHp;
 
             if (!enemy.isAlive()){
                 target.context().registerDefeat(enemy, user);
-                System.out.print(" X ELIMINATED");
+                logMsg += " X ELIMINATED";
             }
             
             else {
                 enemy.addStatusEffect(new StunStatusEffect(2), target.context());
             }
 
-            System.out.print(" (dmg: " + user.getAttack() + "-" + enemy.getDefense() + "=" + 
-            dmg + ")");
+            logMsg += " (dmg: " + user.getAttack() + "-" + enemy.getDefense() + "=" + 
+            dmg + ")";
             if (enemy.isAlive()){
-                System.out.print(" | " + enemy.getName() + " STUNNED (2 turns)");
+                logMsg += " | " + enemy.getName() + " STUNNED (2 turns)";
             }
+            target.context().log(logMsg);
         }
-        System.out.println();
     }
 }
