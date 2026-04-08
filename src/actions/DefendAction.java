@@ -19,6 +19,11 @@ public final class DefendAction implements Action {
 
     @Override
     public void execute(Combatant user, ActionTarget target) {
+        int oldDef = user.getDefense();
+        user.modifyDefense(10);
         user.addStatusEffect(new DefendStatusEffect(10), target.context());
+        int newDef = user.getDefense();
+        System.out.println(user.getName() + " → Defends, DEF: " + oldDef + " → " + newDef + 
+        " (+10 for 2 turns");
     }
 }
