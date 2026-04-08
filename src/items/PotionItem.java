@@ -20,7 +20,7 @@ public final class PotionItem implements Item {
     @Override
     public boolean canUse(AbstractPlayer user, BattleView battleView) {
         // check whether Potion can be used
-        return user.getHp() < user.getMaxHp();
+        return user.getCurrentHp() < user.getMaxHp();
     }
 
     @Override
