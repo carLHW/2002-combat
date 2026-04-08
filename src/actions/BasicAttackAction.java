@@ -30,17 +30,16 @@ public final class BasicAttackAction implements Action {
             int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
             enemy.receiveDamage(dmg);
             int newHp = enemy.getCurrentHp();
-
-            System.out.print(user.getName() + " → BasicAttack → " + enemy.getName() + 
-            ": HP: " + oldHp + " → " + newHp);
+            String logMsg = user.getName() + " → BasicAttack → " + enemy.getName() + 
+            ": HP: " + oldHp + " → " + newHp;
 
             if (!enemy.isAlive()){
                 target.context().registerDefeat(enemy, user);
-                System.out.print(" X ELIMINATED");
+                logMsg += " X Eliminated";
             }
-            
-            System.out.println(" (dmg: " + user.getAttack() + "-" + 
-            enemy.getDefense() + "=" + dmg + ")");
+            logMsg += " (dmg: " + user.getAttack() + "-" + enemy.getDefense() 
+            + "=" + dmg + ")";
+            target.context().log(logMsg);
         }
     }
 }
