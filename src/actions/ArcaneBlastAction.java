@@ -9,7 +9,7 @@ import java.util.List;
 public final class ArcaneBlastAction implements Action {
     @Override
     public String getName() {
-        return "Arcane Blast";
+        return "ArcaneBlast";
     }
 
     @Override
@@ -24,21 +24,34 @@ public final class ArcaneBlastAction implements Action {
     @Override
     public void execute(Combatant user, ActionTarget target) {
         List<Combatant> enemies = target.targets();
-        int kills = 0;
-        for (Combatant enemy : enemies){
-            if (enemy != null && enemy.isAlive()){
-                int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
-                enemy.receiveDamage(dmg);
+        System.out.print(user.getName() + " → Arcane Blast → All Enemies: ");
 
-                if (!enemy.isAlive()){
-                    kills++;
+        for (int i = 0; i < enemies.size(); i++) {
+            Combatant enemy = enemies.get(i);
+            if (enemy != null && enemy.isAlive()) {
+                int oldAtk = user.getAttack();
+                int oldHp = enemy.getCurrentHp();
+                int dmg = Math.max(0, oldAtk - enemy.getDefense());
+                enemy.receiveDamage(dmg);
+                int newHp = enemy.getCurrentHp();
+
+                System.out.print(enemy.getName() + " HP: " + oldHp + " → " + newHp);
+
+                if (!enemy.isAlive()) {
+                    System.out.print(" X ELIMINATED");
                     target.context().registerDefeat(enemy, user);
+                    user.modifyAttack(10); 
+                    System.out.print(" (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + dmg + ")");
+                    System.out.print(" | ATK: " + oldAtk + " → " + user.getAttack() + " (+10)");
+                }   
+                else {
+                System.out.print(" (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + dmg + ")");
                 }
+
+                if (i < enemies.size() - 1) System.out.print(" | ");
             }
         }
-
-        if (kills>0){
-            user.modifyAttack(kills*10);
-        }
+        System.out.println();
     }
+
 }
