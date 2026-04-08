@@ -23,19 +23,35 @@ public final class ArcaneBlastAction implements Action {
 
     @Override
     public void execute(Combatant user, ActionTarget target) {
-        List<Combatant> targets = target.targets();
-        int kills = 0;
-        for (Combatant enemy : targets){
-            int dmg = Math.max(0, user.getAttack() - enemy.getDefense());
-            enemy.receiveDamage(dmg);
-            if (!enemy.isAlive()){
-                kills++;
-                target.context().registerDefeat(enemy, user);
+        List<Combatant> enemies = target.targets();
+        System.out.print(user.getName() + " → Arcane Blast → All Enemies: ");
+
+        for (int i = 0; i < enemies.size(); i++) {
+            Combatant enemy = enemies.get(i);
+            if (enemy != null && enemy.isAlive()) {
+                int oldAtk = user.getAttack();
+                int oldHp = enemy.getCurrentHp();
+                int dmg = Math.max(0, oldAtk - enemy.getDefense());
+                enemy.receiveDamage(dmg);
+                int newHp = enemy.getCurrentHp();
+
+                System.out.print(enemy.getName() + " HP: " + oldHp + " → " + newHp);
+
+                if (!enemy.isAlive()) {
+                    System.out.print(" X ELIMINATED");
+                    target.context().registerDefeat(enemy, user);
+                    user.modifyAttack(10); 
+                    System.out.print(" (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + dmg + ")");
+                    System.out.print(" | ATK: " + oldAtk + " → " + user.getAttack() + " (+10)");
+                }   
+                else {
+                System.out.print(" (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + dmg + ")");
+                }
+
+                if (i < enemies.size() - 1) System.out.print(" | ");
             }
         }
-        if (kills>0){
-            user.modifyAttack(kills*10);
-        }
-        user.getCooldownTracker().startCooldown(getName(), 3);
+        System.out.println();
     }
+
 }
