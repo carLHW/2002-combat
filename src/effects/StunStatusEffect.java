@@ -23,4 +23,5 @@ public final class StunStatusEffect extends AbstractStatusEffect {
     @Override
     public void onTurnEnd(Combatant target, BattleContext battleContext) {
         reduceRoundsByOne();
+    }
 }
