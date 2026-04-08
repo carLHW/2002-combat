@@ -6,8 +6,10 @@ import api.Item;
 import model.AbstractPlayer;
 
 public final class PotionItem implements Item {
+    private final int healAmount;
     public PotionItem(int healAmount) {
-        // TODO: store heal amount
+        // store heal amount
+        this.healAmount = healAmount;
     }
 
     @Override
@@ -17,12 +19,13 @@ public final class PotionItem implements Item {
 
     @Override
     public boolean canUse(AbstractPlayer user, BattleView battleView) {
-        // TODO: check whether Potion can be used
-        return true;
+        // check whether Potion can be used
+        return user.getHp() < user.getMaxHp();
     }
 
     @Override
     public void use(AbstractPlayer user, ActionTarget target) {
-        // TODO: implement PotionItem
+        // implement PotionItem
+        user.heal(healAmount);
     }
 }
