@@ -23,6 +23,6 @@ public final class DefendAction implements Action {
         user.addStatusEffect(new DefendStatusEffect(10), target.context());
         int newDef = user.getDefense();
         target.context().log(user.getName() + " → Defends, DEF: " + oldDef + " → " + newDef + 
-        " (+10 for 2 turns");
+        " (+10 for 2 turns)");
     }
 }
