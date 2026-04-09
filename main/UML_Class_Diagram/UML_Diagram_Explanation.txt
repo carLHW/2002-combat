@@ -1,7 +1,7 @@
 Turn-Based Combat Arena UML Guide
 
 Purpose
-- This file explains the simplified UML in a short and clear way.
+- This file explains the three UML class diagram variants in a short and clear way.
 
 Main Idea
 - The design is split into:
@@ -49,15 +49,38 @@ CLI
 - `Main` starts the program.
 - The CLI should stay separate from battle logic.
 
+The Three UML Variants
+- `UML-class-diagram-simplified`
+  - shows the shared structure in more detail
+  - keeps the gameplay classes mostly empty so the diagram is easier to read
+- `UML-class-diagram-implementation-focused`
+  - shows the gameplay classes in more detail
+  - keeps the shared structure mostly empty
+- `UML-class-diagram-full`
+  - combines the details from both diagrams into one full class diagram
+
+Colouring
+- blue
+  - UI / boundary classes
+- green
+  - combatants and team entities
+- yellow
+  - actions, items, and status effects
+- pink
+  - battle flow / engine / level control
+- grey
+  - support classes and shared utility structure
+
 Current Repo State
 - The structure is already set up.
 - The CLI area is more prepared than the other areas.
 - Shared interfaces already exist.
 - Abstract/base classes already have starter code.
-- Most feature areas still contain starter skeletons and TODO markers.
+- Several feature areas now have partial implementations.
+- Many core gameplay rules are still unfinished, so the code should still be treated as in-progress.
 
 How To Read The UML
-- First read the hierarchy:
+- First read the shared structure:
   - `Combatant -> AbstractCombatant -> AbstractPlayer / AbstractEnemy -> concrete classes`
 - Then read the action side:
   - `Action -> concrete action classes`
@@ -71,6 +94,6 @@ How To Read The UML
   - `GameCLI`
 
 Conclusion
-- The UML shows the main relationships and responsibilities.
-- It is not meant to show every implementation detail.
-- It is meant to show the structure of the game clearly.
+- The UML diagrams show the main relationships and responsibilities needed for the assignment.
+- They intentionally keep only the important classes.
+- Together, the three diagrams show the same system at different levels of implementation detail.

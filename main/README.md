@@ -10,9 +10,9 @@
 If you are new to the project, read these in order:
 
 1. `README.md`
-2. `UML_Class_Diagram/UML_Class_Diagram_Simplified.md`
+2. `UML_Class_Diagram/markdown/UML-class-diagram-simplified.md`
 3. `UML_Class_Diagram/UML_Diagram_Explanation.txt`
-4. `UML_Sequence_Diagram/UML_Sequence_Diagram.md`
+4. `UML_Class_Diagram/markdown/UML-class-diagram-implementation-focused.md`
 5. `CLASS_GUIDE.md`
 6. `PROJECT_STRUCTURE.md`
 7. `TEAM_OWNERSHIP.md`
@@ -78,8 +78,8 @@ If you are new to the project, read these in order:
 - The CLI/setup area is the most prepared.
 - Shared interfaces are already prepared.
 - Abstract/base classes already have starter code.
-- Most other files are still starter skeletons with `TODO` comments.
-- This is intentional so each person can fill in their own part.
+- Several teammate areas already have partial implementations.
+- Many core gameplay rules are still unfinished, so treat the repo as in-progress.
 
 ## Does Anyone Need To Finish First?
 
@@ -96,14 +96,16 @@ If you are new to the project, read these in order:
 
 ## Important Docs In This Folder
 
-- `UML_Class_Diagram/UML_Class_Diagram.svg`
+- `UML_Class_Diagram/svg/UML-class-diagram-simplified.svg`
   - exported class diagram
-- `UML_Class_Diagram/UML_Class_Diagram_Simplified.md`
-  - Mermaid UML source
+- `UML_Class_Diagram/markdown/UML-class-diagram-simplified.md`
+  - Mermaid UML source (simplified)
+- `UML_Class_Diagram/markdown/UML-class-diagram-implementation-focused.md`
+  - Mermaid UML source focused on team implementation work
+- `UML_Class_Diagram/markdown/UML-class-diagram-full.md`
+  - Mermaid UML source for the fuller main design
 - `UML_Class_Diagram/UML_Diagram_Explanation.txt`
   - short UML explanation
-- `UML_Sequence_Diagram/UML_Sequence_Diagram.md`
-  - Mermaid source for the sequence diagram
 - `CLASS_GUIDE.md`
   - explains what the classes and folders do
 - `PROJECT_STRUCTURE.md`
@@ -111,7 +113,7 @@ If you are new to the project, read these in order:
 - `TEAM_OWNERSHIP.md`
   - who is handling which files
 - `TEAM_STARTUP.md`
-  - git workflow, AI prompt template, startup notes
+  - git workflow and startup notes
 
 ## Important Team Rules
 
