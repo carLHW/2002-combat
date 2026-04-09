@@ -7,7 +7,8 @@
 - The shared interfaces are already prepared.
 - The abstract/base classes are already prepared.
 - The CLI/setup flow is partially prepared.
-- Most non-Team-1 feature files are starter skeletons with TODO markers.
+- Several non-CLI files already have partial implementations.
+- Many core gameplay rules are still unfinished.
 
 ## What This Means
 
@@ -20,9 +21,9 @@
 
 - Read:
   - `README.md`
-  - `UML_Class_Diagram/UML_Class_Diagram_Simplified.md`
+  - `UML_Class_Diagram/markdown/UML-class-diagram-simplified.md`
+  - `UML_Class_Diagram/markdown/UML-class-diagram-implementation-focused.md`
   - `UML_Class_Diagram/UML_Diagram_Explanation.txt`
-  - `UML_Sequence_Diagram/UML_Sequence_Diagram.md`
   - `TEAM_OWNERSHIP.md`
 - Check your assigned files before writing code.
 - Do not casually rename shared classes or shared methods.
