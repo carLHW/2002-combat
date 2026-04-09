@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 public final class SimpleCooldownTracker implements CooldownTracker {
+    private final Map<String, Integer> cooldowns = new HashMap<>();
+
     @Override
     public boolean isReady(String key) {
         // implement cooldown readiness
