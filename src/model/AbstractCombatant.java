@@ -100,49 +100,91 @@ public abstract class AbstractCombatant implements Combatant {
     @Override
     public void receiveDamage(int amount) {
         // TODO: implement shared damage handling
+        currentHp-= amount;
+        if (currentHp < 0) {
+            currentHp = 0;
+        }
     }
 
     @Override
     public void heal(int amount) {
         // TODO: implement shared healing handling
+        currentHp += amount;
+        if (currentHp > maxHp) {
+            currentHp = maxHp;
+        }
     }
 
     @Override
     public void modifyAttack(int delta) {
         // TODO: implement attack modification
+        attack+=delta;
     }
 
     @Override
     public void modifyDefense(int delta) {
         // TODO: implement defense modification
+        defense+=delta;
     }
 
     @Override
     public void addStatusEffect(StatusEffect effect, BattleContext battleContext) {
         // TODO: implement status effect application
+        statusEffects.add(effect);
+        effect.onApply(this, battleContext);    
     }
 
     @Override
     public void removeExpiredEffects(BattleContext battleContext) {
-        // TODO: implement expired effect removal
+        for (int i = statusEffects.size() - 1; i >= 0; i--) {
+            StatusEffect effect = statusEffects.get(i);
+            if (effect.isExpired()) {
+                effect.onExpire(this, battleContext);
+                statusEffects.remove(i);
+            }
+        }
     }
 
     @Override
     public boolean canAct(BattleContext battleContext) {
-        // TODO: implement shared action availability check
-        return isAlive();
+        if (!isAlive()) {
+            return false;
+        }
+        for (int i = 0; i < statusEffects.size(); i++) {
+            if (statusEffects.get(i).preventsAction(this, battleContext)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public Action chooseAction(BattleView battleView) {
-        // TODO: implement default action choice
-        return actions.isEmpty() ? null : actions.get(0);
+        for (int i = 0; i < actions.size(); i++) {
+            Action action = actions.get(i);
+            if (action.canExecute(this, battleView)) {
+                return action;
+            }
+        }
+        return null;
     }
 
     @Override
     public ActionTarget chooseTarget(Action action, BattleView battleView, BattleContext battleContext) {
-        // TODO: implement default target choice
-        return null;
+        if (action == null) {
+            return null;
+        }
+
+        switch (action.getName()) {
+            case "Defend":
+            case "UseItem":
+                return new SimpleActionTarget(this, battleContext);
+            case "ArcaneBlast":
+                List<Combatant> opponents = battleView.getLivingOpponentsOf(this);
+                return opponents.isEmpty() ? null : new SimpleActionTarget(opponents, battleContext);
+            default:
+                List<Combatant> defaultTargets = battleView.getLivingOpponentsOf(this);
+                return defaultTargets.isEmpty() ? null : new SimpleActionTarget(defaultTargets.get(0), battleContext);
+        }
     }
 }
-
