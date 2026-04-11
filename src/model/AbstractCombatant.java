@@ -1,5 +1,6 @@
 package model;
 
+import actions.ArcaneBlastAction;
 import api.Action;
 import api.ActionTarget;
 import api.BattleContext;
@@ -12,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Shared base class for anything that can fight in battle.
-// TODO: complete shared combatant logic in this class.
-// TODO: review the constructor/fields if the final combat flow needs small adjustments.
+// TODO: if the team changes targeting rules later, adjust the default target selection here.
 public abstract class AbstractCombatant implements Combatant {
     private final String name;
     private final Team team;
@@ -38,7 +38,6 @@ public abstract class AbstractCombatant implements Combatant {
     }
 
     protected final void addAction(Action action) {
-        // TODO: keep or refine this helper if the final action setup needs a different approach.
         actions.add(action);
     }
 
@@ -99,50 +98,43 @@ public abstract class AbstractCombatant implements Combatant {
 
     @Override
     public void receiveDamage(int amount) {
-        // TODO: implement shared damage handling
-        currentHp-= amount;
-        if (currentHp < 0) {
-            currentHp = 0;
-        }
+        currentHp = Math.max(0, currentHp - Math.max(0, amount));
     }
 
     @Override
     public void heal(int amount) {
-        // TODO: implement shared healing handling
-        currentHp += amount;
-        if (currentHp > maxHp) {
-            currentHp = maxHp;
-        }
+        currentHp = Math.min(maxHp, currentHp + Math.max(0, amount));
     }
 
     @Override
     public void modifyAttack(int delta) {
-        // TODO: implement attack modification
-        attack+=delta;
+        attack = Math.max(0, attack + delta);
     }
 
     @Override
     public void modifyDefense(int delta) {
-        // TODO: implement defense modification
-        defense+=delta;
+        defense = Math.max(0, defense + delta);
     }
 
     @Override
     public void addStatusEffect(StatusEffect effect, BattleContext battleContext) {
-        // TODO: implement status effect application
+        if (effect == null) {
+            return;
+        }
         statusEffects.add(effect);
-        effect.onApply(this, battleContext);    
+        effect.onApply(this, battleContext);
     }
 
     @Override
     public void removeExpiredEffects(BattleContext battleContext) {
-        for (int i = statusEffects.size() - 1; i >= 0; i--) {
-            StatusEffect effect = statusEffects.get(i);
+        List<StatusEffect> expiredEffects = new ArrayList<>();
+        for (StatusEffect effect : statusEffects) {
             if (effect.isExpired()) {
                 effect.onExpire(this, battleContext);
-                statusEffects.remove(i);
+                expiredEffects.add(effect);
             }
         }
+        statusEffects.removeAll(expiredEffects);
     }
 
     @Override
@@ -150,8 +142,8 @@ public abstract class AbstractCombatant implements Combatant {
         if (!isAlive()) {
             return false;
         }
-        for (int i = 0; i < statusEffects.size(); i++) {
-            if (statusEffects.get(i).preventsAction(this, battleContext)) {
+        for (StatusEffect effect : statusEffects) {
+            if (effect.preventsAction(this, battleContext)) {
                 return false;
             }
         }
@@ -160,8 +152,7 @@ public abstract class AbstractCombatant implements Combatant {
 
     @Override
     public Action chooseAction(BattleView battleView) {
-        for (int i = 0; i < actions.size(); i++) {
-            Action action = actions.get(i);
+        for (Action action : getActions()) {
             if (action.canExecute(this, battleView)) {
                 return action;
             }
@@ -174,17 +165,14 @@ public abstract class AbstractCombatant implements Combatant {
         if (action == null) {
             return null;
         }
-
-        switch (action.getName()) {
-            case "Defend":
-            case "UseItem":
-                return new SimpleActionTarget(this, battleContext);
-            case "ArcaneBlast":
-                List<Combatant> opponents = battleView.getLivingOpponentsOf(this);
-                return opponents.isEmpty() ? null : new SimpleActionTarget(opponents, battleContext);
-            default:
-                List<Combatant> defaultTargets = battleView.getLivingOpponentsOf(this);
-                return defaultTargets.isEmpty() ? null : new SimpleActionTarget(defaultTargets.get(0), battleContext);
+        if (action instanceof ArcaneBlastAction) {
+            return new SimpleActionTarget(battleView.getLivingOpponentsOf(this), battleContext);
         }
+
+        List<Combatant> opponents = battleView.getLivingOpponentsOf(this);
+        if (opponents.isEmpty()) {
+            return new SimpleActionTarget(this, battleContext);
+        }
+        return new SimpleActionTarget(opponents.get(0), battleContext);
     }
 }
