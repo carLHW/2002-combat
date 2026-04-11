@@ -5,9 +5,9 @@ import api.ActionTarget;
 import api.BattleView;
 import api.Combatant;
 import api.Item;
-import java.util.Optional;
 import model.AbstractPlayer;
 
+// TODO: if item choice UI changes later, keep this action synced with AbstractPlayer.
 public final class UseItemAction implements Action {
     @Override
     public String getName() {
@@ -16,7 +16,6 @@ public final class UseItemAction implements Action {
 
     @Override
     public boolean canExecute(Combatant user, BattleView battleView) {
-        // check whether the player has a usable item
         if (!(user instanceof AbstractPlayer player)) {
             return false;
         }
@@ -26,33 +25,26 @@ public final class UseItemAction implements Action {
                 return true;
             }
         }
-
         return false;
     }
 
     @Override
     public void execute(Combatant user, ActionTarget target) {
-        // implement UseItemAction
         if (!(user instanceof AbstractPlayer player)) {
             return;
         }
-        
-        Optional<Item> usableItem = player.getInventory()
-                .getItems()
-                .stream()
-                .filter(item -> item.canUse(player, null))
-                .findFirst();
 
-        if (usableItem.isEmpty()) {
+        Item item = player.getSelectedItem();
+        if (item == null || !item.canUse(player, null)) {
             return;
         }
 
-        Item item = usableItem.get();
         item.use(player, target);
         player.getInventory().consume(item);
+        player.clearSelectedItem();
 
         if (target != null && target.context() != null) {
             target.context().log(player.getName() + " used " + item.getName() + ".");
-       }
-}
+        }
+    }
 }

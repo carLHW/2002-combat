@@ -16,7 +16,7 @@ public final class StunStatusEffect extends AbstractStatusEffect {
 
     @Override
     public boolean preventsAction(Combatant target, BattleContext battleContext) {
-        // TODO: implement StunStatusEffect
+        // TODO: recheck whether stun should wear off on turn end or round end in the final team version.
         return getRemainingRounds() > 0;
     }
 
