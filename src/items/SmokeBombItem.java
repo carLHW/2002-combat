@@ -1,16 +1,15 @@
 package items;
 
 import api.ActionTarget;
+import api.BattleContext;
 import api.BattleView;
+import api.Combatant;
 import api.Item;
 import model.AbstractPlayer;
-import api.BattleContext;
-import api.Combatant;
 import model.AbstractStatusEffect;
 
+// TODO: move Smoke Bomb damage-nullification into a cleaner shared hook if the team refactors later.
 public final class SmokeBombItem implements Item {
-
-    private static final int SMOKE_BOMB_DEFENSE_BONUS = 100;
     @Override
     public String getName() {
         return "Smoke Bomb";
@@ -24,7 +23,7 @@ public final class SmokeBombItem implements Item {
     @Override
     public void use(AbstractPlayer user, ActionTarget target) {
         BattleContext battleContext = target == null ? null : target.context();
-        user.addStatusEffect(new SmokeBombStatusEffect(SMOKE_BOMB_DEFENSE_BONUS), battleContext);
+        user.addStatusEffect(new SmokeBombStatusEffect(), battleContext);
 
         if (battleContext != null) {
             battleContext.log(user.getName() + " used Smoke Bomb.");
@@ -32,11 +31,8 @@ public final class SmokeBombItem implements Item {
     }
 
     private static final class SmokeBombStatusEffect extends AbstractStatusEffect {
-        private final int defenseBonus;
-
-        private SmokeBombStatusEffect(int defenseBonus) {
+        private SmokeBombStatusEffect() {
             super(2);
-            this.defenseBonus = defenseBonus;
         }
 
         @Override
@@ -45,18 +41,8 @@ public final class SmokeBombItem implements Item {
         }
 
         @Override
-        public void onApply(Combatant target, BattleContext battleContext) {
-            target.modifyDefense(defenseBonus);
-        }
-
-        @Override
         public void onRoundEnd(Combatant target, BattleContext battleContext) {
             reduceRoundsByOne();
-        }
-
-        @Override
-        public void onExpire(Combatant target, BattleContext battleContext) {
-            target.modifyDefense(-defenseBonus);
         }
     }
 }

@@ -1,17 +1,14 @@
 package level;
 
 import api.Combatant;
+import combatants.Goblin;
+import combatants.Wolf;
 import java.util.ArrayList;
 import java.util.List;
 
-// We updated these imports to point to your teammates' package!
-import combatants.Goblin;
-import combatants.Wolf;
-
+// TODO: recheck enemy names and level setup against the final submission wording if needed.
 public final class LevelFactory {
-    
     private LevelFactory() {
-        // Prevent instantiation of utility class
     }
 
     public static LevelSetup createLevel(Difficulty difficulty) {
@@ -20,25 +17,22 @@ public final class LevelFactory {
 
         switch (difficulty) {
             case EASY:
-                initialEnemies.add(new Goblin("Weak Goblin"));
-                // No backups for easy mode
+                initialEnemies.add(new Goblin("Weak Goblin 1"));
+                initialEnemies.add(new Goblin("Weak Goblin 2"));
+                initialEnemies.add(new Goblin("Weak Goblin 3"));
                 break;
-                
             case MEDIUM:
                 initialEnemies.add(new Goblin("Goblin Guard"));
                 initialEnemies.add(new Wolf("Wild Wolf"));
-                
-                // One backup enemy
-                backupEnemies.add(new Goblin("Sneaky Goblin")); 
+                backupEnemies.add(new Wolf("Pack Wolf 1"));
+                backupEnemies.add(new Wolf("Pack Wolf 2"));
                 break;
-                
             case HARD:
-                initialEnemies.add(new Wolf("Alpha Wolf"));
-                initialEnemies.add(new Goblin("Goblin Chief"));
-                
-                // Two backup enemies
-                backupEnemies.add(new Wolf("Pack Wolf"));
-                backupEnemies.add(new Goblin("Goblin Shaman"));
+                initialEnemies.add(new Goblin("Goblin Frontliner 1"));
+                initialEnemies.add(new Goblin("Goblin Frontliner 2"));
+                backupEnemies.add(new Goblin("Goblin Chief"));
+                backupEnemies.add(new Wolf("Pack Wolf 1"));
+                backupEnemies.add(new Wolf("Pack Wolf 2"));
                 break;
         }
 
