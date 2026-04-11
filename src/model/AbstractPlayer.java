@@ -1,5 +1,8 @@
 package model;
 
+import actions.BasicAttackAction;
+import actions.DefendAction;
+import actions.UseItemAction;
 import api.Action;
 import api.ActionTarget;
 import api.BattleContext;
@@ -14,6 +17,10 @@ public abstract class AbstractPlayer extends AbstractCombatant {
     protected AbstractPlayer(String name, int maxHp, int attack, int defense, int speed) {
         super(name, Team.PLAYER, maxHp, attack, defense, speed);
         // TODO: add player-specific default actions
+        addAction(new BasicAttackAction());
+        addAction(new DefendAction());
+        addAction(new UseItemAction());
+
     }
 
     public final Inventory getInventory() {
