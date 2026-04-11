@@ -1,14 +1,15 @@
 package items;
 
+import actions.DefendAction;
+import actions.UseItemAction;
 import api.Action;
 import api.ActionTarget;
 import api.BattleView;
 import api.Item;
 import model.AbstractPlayer;
 
+// TODO: if special-skill identification is refactored later, update this item too.
 public final class PowerStoneItem implements Item {
-
-    private static final String SPECIAL_SKILL_KEY = "SpecialSkill";
     @Override
     public String getName() {
         return "Power Stone";
@@ -16,14 +17,13 @@ public final class PowerStoneItem implements Item {
 
     @Override
     public boolean canUse(AbstractPlayer user, BattleView battleView) {
-        return user.getActions().stream()
-                .anyMatch(action -> SPECIAL_SKILL_KEY.equals(action.getName()));
+        return user.getActions().stream().anyMatch(this::isSpecialSkill);
     }
 
     @Override
     public void use(AbstractPlayer user, ActionTarget target) {
         Action specialSkill = user.getActions().stream()
-                .filter(action -> SPECIAL_SKILL_KEY.equals(action.getName()))
+                .filter(this::isSpecialSkill)
                 .findFirst()
                 .orElse(null);
 
@@ -31,14 +31,18 @@ public final class PowerStoneItem implements Item {
             return;
         }
 
-        int previousCooldown = user.getCooldownTracker().getRemainingTurns(SPECIAL_SKILL_KEY);
-
+        int previousCooldown = user.getCooldownTracker().getRemainingTurns(specialSkill.getName());
         specialSkill.execute(user, target);
-
-        user.getCooldownTracker().startCooldown(SPECIAL_SKILL_KEY, previousCooldown);
+        user.getCooldownTracker().startCooldown(specialSkill.getName(), previousCooldown);
 
         if (target != null && target.context() != null) {
             target.context().log(user.getName() + " activated Power Stone.");
         }
+    }
+
+    private boolean isSpecialSkill(Action action) {
+        return !(action instanceof DefendAction)
+                && !(action instanceof UseItemAction)
+                && !"BasicAttack".equals(action.getName());
     }
 }
