@@ -5,15 +5,18 @@ import api.ActionTarget;
 import api.BattleContext;
 import api.BattleView;
 import api.Combatant;
+import api.StatusEffect;
 import api.Team;
 import api.TurnOrderStrategy;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: if the final team version wants richer battle logs or result data, extend this carefully.
 public final class BattleEngine {
     private final TurnOrderStrategy turnOrderStrategy;
     private final List<Combatant> combatants;
     private final List<Combatant> backupSpawn;
+    private boolean backupSpawned;
     private int roundNumber;
 
     public BattleEngine(
@@ -24,6 +27,7 @@ public final class BattleEngine {
         this.turnOrderStrategy = turnOrderStrategy;
         this.combatants = new ArrayList<>(initialCombatants);
         this.backupSpawn = new ArrayList<>(backupSpawn);
+        this.backupSpawned = backupSpawn.isEmpty();
         this.roundNumber = 0;
     }
 
@@ -33,51 +37,97 @@ public final class BattleEngine {
 
         while (isBattleActive()) {
             roundNumber++;
-            
-            
+            context.log("");
+            context.log("=== Round " + roundNumber + " ===");
+
             List<Combatant> turnOrder = turnOrderStrategy.sort(combatants);
-
-            
-            for (int i = 0; i < turnOrder.size(); i++) {
-                Combatant current = turnOrder.get(i);
-    
-                
-                if (!current.isAlive()) continue;
-
-                // Flow: Choose -> Check -> Target -> Execute
-                Action chosenAction = current.chooseAction(view);
-                
-                if (chosenAction != null && chosenAction.canExecute(current, view)) {
-                    ActionTarget target = current.chooseTarget(chosenAction, view, context);
-                    chosenAction.execute(current, target);
+            for (Combatant current : turnOrder) {
+                if (!current.isAlive()) {
+                    continue;
                 }
 
-                // Check if a team was wiped out mid-round
-                if (!isBattleActive()) break;
+                for (StatusEffect effect : current.getStatusEffects()) {
+                    effect.onTurnStart(current, context);
+                }
+
+                if (!current.canAct(context)) {
+                    context.log(current.getName() + " cannot act this turn.");
+                } else {
+                    Action chosenAction = current.chooseAction(view);
+                    ActionTarget target = current.chooseTarget(chosenAction, view, context);
+                    if (chosenAction != null && target != null && chosenAction.canExecute(current, view)) {
+                        chosenAction.execute(current, target);
+                    }
+                }
+
+                current.getCooldownTracker().reduceCooldownOnTurnTaken();
+                for (StatusEffect effect : current.getStatusEffects()) {
+                    effect.onTurnEnd(current, context);
+                }
+                current.removeExpiredEffects(context);
+                spawnBackupIfNeeded(context);
+
+                if (!isBattleActive()) {
+                    break;
+                }
+            }
+
+            for (Combatant combatant : new ArrayList<>(combatants)) {
+                if (!combatant.isAlive()) {
+                    continue;
+                }
+                for (StatusEffect effect : combatant.getStatusEffects()) {
+                    effect.onRoundEnd(combatant, context);
+                }
+                combatant.removeExpiredEffects(context);
             }
         }
-        
+
         return new BattleResult(determineWinner(), roundNumber);
     }
 
     private boolean isBattleActive() {
-        boolean playerAlive = false;
-        boolean enemyAlive = false;
+        return hasLivingPlayers() && hasLivingEnemies();
+    }
 
-        for (Combatant c : combatants) {
-            if (c.isAlive()) {
-                if (c.getTeam() == Team.PLAYER) playerAlive = true;
-                if (c.getTeam() == Team.ENEMY) enemyAlive = true;
+    private boolean hasLivingPlayers() {
+        for (Combatant combatant : combatants) {
+            if (combatant.isAlive() && combatant.getTeam() == Team.PLAYER) {
+                return true;
             }
         }
-        return playerAlive && enemyAlive;
+        return false;
+    }
+
+    private boolean hasLivingEnemies() {
+        for (Combatant combatant : combatants) {
+            if (combatant.isAlive() && combatant.getTeam() == Team.ENEMY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Team determineWinner() {
-        for (Combatant c : combatants) {
-            if (c.isAlive()) return c.getTeam();
+        return hasLivingPlayers() ? Team.PLAYER : Team.ENEMY;
+    }
+
+    private void spawnBackupIfNeeded(BattleContext context) {
+        if (backupSpawned || backupSpawn.isEmpty() || hasLivingEnemies()) {
+            return;
         }
-        return Team.ENEMY; // Default fallback
+
+        combatants.addAll(backupSpawn);
+        backupSpawned = true;
+
+        StringBuilder message = new StringBuilder("Backup enemies appeared: ");
+        for (int i = 0; i < backupSpawn.size(); i++) {
+            if (i > 0) {
+                message.append(", ");
+            }
+            message.append(backupSpawn.get(i).getName());
+        }
+        context.log(message.toString());
     }
 
     public int getRoundNumber() {
@@ -86,17 +136,19 @@ public final class BattleEngine {
 
     public List<Combatant> getLivingCombatants() {
         List<Combatant> living = new ArrayList<>();
-        for (Combatant c : combatants) {
-            if (c.isAlive()) living.add(c);
+        for (Combatant combatant : combatants) {
+            if (combatant.isAlive()) {
+                living.add(combatant);
+            }
         }
         return living;
     }
 
     public List<Combatant> getLivingOpponentsOf(Combatant combatant) {
         List<Combatant> opponents = new ArrayList<>();
-        for (Combatant c : combatants) {
-            if (c.isAlive() && c.getTeam() != combatant.getTeam()) {
-                opponents.add(c);
+        for (Combatant current : combatants) {
+            if (current.isAlive() && current.getTeam() != combatant.getTeam()) {
+                opponents.add(current);
             }
         }
         return opponents;
@@ -104,10 +156,9 @@ public final class BattleEngine {
 
     public List<Combatant> getLivingAlliesOf(Combatant combatant) {
         List<Combatant> allies = new ArrayList<>();
-        for (Combatant c : combatants) {
-            // Allies include everyone on the same team EXCEPT the combatant themselves
-            if (c.isAlive() && c.getTeam() == combatant.getTeam() && c != combatant) {
-                allies.add(c);
+        for (Combatant current : combatants) {
+            if (current.isAlive() && current.getTeam() == combatant.getTeam() && current != combatant) {
+                allies.add(current);
             }
         }
         return allies;
