@@ -10,14 +10,14 @@ import engine.BattleResult;
 import items.PotionItem;
 import items.PowerStoneItem;
 import items.SmokeBombItem;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 import level.Difficulty;
 import level.LevelFactory;
 import level.LevelSetup;
 import model.AbstractPlayer;
 import model.SpeedTurnOrderStrategy;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 public final class GameCLI {
     private static final int ITEM_COUNT = 2;
@@ -27,6 +27,7 @@ public final class GameCLI {
 
     public GameCLI(Scanner scanner) {
         this.scanner = scanner;
+        AbstractPlayer.setSharedScanner(scanner);
     }
 
     public void start() {
@@ -66,7 +67,7 @@ public final class GameCLI {
             );
 
             BattleResult result = engine.runBattle();
-            int nextStep = showEndScreen(result, player);
+            int nextStep = showEndScreen(result, player, engine);
             keepPlaying = nextStep != 3;
             reusePreviousSetup = nextStep == 1;
         }
@@ -176,7 +177,7 @@ public final class GameCLI {
         };
     }
 
-    private int showEndScreen(BattleResult result, Combatant player) {
+    private int showEndScreen(BattleResult result, Combatant player, BattleEngine engine) {
         System.out.println();
         System.out.println("====================================");
         if (result.winner() == Team.PLAYER) {
@@ -185,6 +186,7 @@ public final class GameCLI {
             System.out.println("Total Rounds: " + result.roundsCompleted());
         } else {
             System.out.println("Defeat!");
+            System.out.println("Enemies Remaining: " + engine.getLivingOpponentsOf(player).size());
             System.out.println("Rounds Survived: " + result.roundsCompleted());
         }
         System.out.println("====================================");
