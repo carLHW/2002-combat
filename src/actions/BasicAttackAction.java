@@ -6,6 +6,7 @@ import api.BattleView;
 import api.Combatant;
 import java.util.List;
 
+//TODO: verify whether the isStunned check is implemented correctly
 public final class BasicAttackAction implements Action {
     @Override
     public String getName() {
@@ -15,6 +16,11 @@ public final class BasicAttackAction implements Action {
     @Override
     public boolean canExecute(Combatant user, BattleView battleView) {
         if (!user.isAlive()) {
+            return false;
+        }
+        boolean isStunned = user.getStatusEffects().stream()
+                .anyMatch(effect -> "Stun".equals(effect.getName()));
+        if (isStunned) {
             return false;
         }
         List<Combatant> enemies = battleView.getLivingOpponentsOf(user);
