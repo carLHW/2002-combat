@@ -25,4 +25,4 @@ Main documentation is in `main/`.
 
 ## UML Diagram
 
-[![UML Class Diagram](main/UML_Class_Diagram/png/UML-class-diagram-simplified.png)](main/UML_Class_Diagram/svg/UML-class-diagram-simplified.svg)
+[![UML Class Diagram](main/UML_Class_Diagram/png/UML-class-diagram-simplified.png)](main/UML_Class_Diagram/svg/UML-class-diagram-simplified.svg?raw=1)
