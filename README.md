@@ -25,6 +25,28 @@ Main documentation is in `main/`.
 
 ## UML Diagram
 
-[![UML Class Diagram](main/UML_Class_Diagram/png/UML-class-diagram-simplified.png)](https://raw.githubusercontent.com/carLHW/2002-combat/refs/heads/main/main/UML_Class_Diagram/svg/UML-class-diagram-simplified.svg)
+[![UML Class Diagram](main/UML_Class_Diagram/png/UML-class-diagram-simplified.png)](main/UML_Class_Diagram/svg/UML-class-diagram-simplified.svg)
 
-[Open SVG](https://raw.githubusercontent.com/carLHW/2002-combat/refs/heads/main/main/UML_Class_Diagram/svg/UML-class-diagram-simplified.svg) | [Open PNG](main/UML_Class_Diagram/png/UML-class-diagram-simplified.png)
+### Full UML (Complete Reference)
+
+This version shows all classes with their complete methods — useful when implementing your assigned parts.
+
+- [Full UML Markdown](main/UML_Class_Diagram/markdown/UML-class-diagram-full.md)
+- [Full UML SVG](main/UML_Class_Diagram/svg/UML-class-diagram-full.svg)
+
+### Teammate Work Areas (Color-Coded)
+
+This version shows who works on what — colored by person, grey for shared structure.
+
+- [Teammate Areas UML](main/UML_Class_Diagram/markdown/UML-class-diagram-teammate-areas.md)
+
+| Person | Files | Area |
+|--------|-------|------|
+| 🔴 Person 1 | `GameCLI.java` | CLI flow |
+| 🟠 Person 2 | `AbstractCombatant.java`, `AbstractPlayer.java`, `AbstractEnemy.java` | Shared base |
+| 🟡 Person 3 | `Warrior.java`, `Wizard.java`, `Goblin.java`, `Wolf.java`, action classes | Combatants + actions |
+| 🟢 Person 4 | `UseItemAction.java`, `*Item.java`, `StunStatusEffect.java` | Items + effects |
+| 🔵 Person 5 | `BattleEngine.java`, `LevelFactory.java` | Engine + levels |
+| ⚫ Shared | Interfaces | already done |
+
+[![UML Class Diagram Full](main/UML_Class_Diagram/png/UML-class-diagram-full.png)](main/UML_Class_Diagram/svg/UML-class-diagram-full.svg)
