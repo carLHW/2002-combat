@@ -29,11 +29,11 @@ public final class ArcaneBlastAction implements Action {
     public void execute(Combatant user, ActionTarget target) {
         List<Combatant> enemies = target.targets();
         String logMsg = user.getName() + " → Arcane Blast → All Enemies: ";
+        int oldAtk = user.getAttack();
 
         for (int i = 0; i < enemies.size(); i++) {
             Combatant enemy = enemies.get(i);
             if (enemy != null && enemy.isAlive()) {
-                int oldAtk = user.getAttack();
                 int oldHp = enemy.getCurrentHp();
                 int damage = Math.max(0, oldAtk - enemy.getDefense());
                 enemy.receiveDamage(damage);

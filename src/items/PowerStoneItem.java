@@ -36,7 +36,7 @@ public final class PowerStoneItem implements Item {
         user.getCooldownTracker().startCooldown(specialSkill.getName(), previousCooldown);
 
         if (target != null && target.context() != null) {
-            target.context().log(user.getName() + " activated Power Stone.");
+            target.context().log(user.getName() + " used Power Stone to trigger " + specialSkill.getName() + ".");
         }
     }
 

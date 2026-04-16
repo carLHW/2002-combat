@@ -35,7 +35,11 @@ public final class UseItemAction implements Action {
         }
 
         Item item = player.getSelectedItem();
-        if (item == null || !item.canUse(player, null)) {
+        if (item == null) {
+            return;
+        }
+        if (!player.getInventory().getItems().contains(item)) {
+            player.clearSelectedItem();
             return;
         }
 
