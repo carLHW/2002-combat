@@ -9,40 +9,30 @@ import model.AbstractPlayer;
 import model.AbstractStatusEffect;
 
 // TODO: move Smoke Bomb damage-nullification into a cleaner shared hook if the team refactors later.
-public final class SmokeBombItem implements Item {
+private static final class SmokeBombStatusEffect extends AbstractStatusEffect {
+    private static final int DEFENSE_BONUS = 100;
+
+    private SmokeBombStatusEffect() {
+        super(2);
+    }
+
     @Override
     public String getName() {
         return "Smoke Bomb";
     }
 
     @Override
-    public boolean canUse(AbstractPlayer user, BattleView battleView) {
-        return true;
+    public void onApply(Combatant target, BattleContext battleContext) {
+        target.modifyDefense(DEFENSE_BONUS);
     }
 
     @Override
-    public void use(AbstractPlayer user, ActionTarget target) {
-        BattleContext battleContext = target == null ? null : target.context();
-        user.addStatusEffect(new SmokeBombStatusEffect(), battleContext);
-
-        if (battleContext != null) {
-            battleContext.log(user.getName() + " used Smoke Bomb.");
-        }
+    public void onRoundEnd(Combatant target, BattleContext battleContext) {
+        reduceRoundsByOne();
     }
 
-    private static final class SmokeBombStatusEffect extends AbstractStatusEffect {
-        private SmokeBombStatusEffect() {
-            super(2);
-        }
-
-        @Override
-        public String getName() {
-            return "Smoke Bomb";
-        }
-
-        @Override
-        public void onRoundEnd(Combatant target, BattleContext battleContext) {
-            reduceRoundsByOne();
-        }
+    @Override
+    public void onExpire(Combatant target, BattleContext battleContext) {
+        target.modifyDefense(-DEFENSE_BONUS);
     }
 }
