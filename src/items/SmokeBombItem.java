@@ -8,7 +8,7 @@ import api.Item;
 import model.AbstractPlayer;
 import model.AbstractStatusEffect;
 
-// TODO: move Smoke Bomb damage-nullification into a cleaner shared hook if the team refactors later.
+// move Smoke Bomb damage-nullification into a cleaner shared hook if the team refactors later.
 private static final class SmokeBombStatusEffect extends AbstractStatusEffect {
     private static final int DEFENSE_BONUS = 100;
 
