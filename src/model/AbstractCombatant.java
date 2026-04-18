@@ -1,6 +1,7 @@
 package model;
 
 import actions.ArcaneBlastAction;
+import actions.DefendAction;
 import api.Action;
 import api.ActionTarget;
 import api.BattleContext;
@@ -38,6 +39,9 @@ public abstract class AbstractCombatant implements Combatant {
     }
 
     protected final void addAction(Action action) {
+        if (action == null) {
+            return;
+        }
         actions.add(action);
     }
 
@@ -118,7 +122,7 @@ public abstract class AbstractCombatant implements Combatant {
 
     @Override
     public void addStatusEffect(StatusEffect effect, BattleContext battleContext) {
-        if (effect == null) {
+        if (effect == null || effect.isExpired()) {
             return;
         }
         statusEffects.add(effect);
@@ -143,7 +147,7 @@ public abstract class AbstractCombatant implements Combatant {
             return false;
         }
         for (StatusEffect effect : statusEffects) {
-            if (effect.preventsAction(this, battleContext)) {
+            if (!effect.isExpired() && effect.preventsAction(this, battleContext)) {
                 return false;
             }
         }
@@ -165,14 +169,27 @@ public abstract class AbstractCombatant implements Combatant {
         if (action == null) {
             return null;
         }
-        if (action instanceof ArcaneBlastAction) {
+
+        if (isSelfTargetAction(action)) {
+            return new SimpleActionTarget(this, battleContext);
+        }
+
+        if (isMultiTargetAction(action)) {
             return new SimpleActionTarget(battleView.getLivingOpponentsOf(this), battleContext);
         }
 
         List<Combatant> opponents = battleView.getLivingOpponentsOf(this);
         if (opponents.isEmpty()) {
-            return new SimpleActionTarget(this, battleContext);
+            return null;
         }
         return new SimpleActionTarget(opponents.get(0), battleContext);
+    }
+
+    private boolean isSelfTargetAction(Action action) {
+        return action instanceof DefendAction || "Defend".equals(action.getName());
+    }
+
+    private boolean isMultiTargetAction(Action action) {
+        return action instanceof ArcaneBlastAction || "ArcaneBlast".equals(action.getName());
     }
 }
