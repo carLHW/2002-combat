@@ -60,17 +60,18 @@ public abstract class AbstractPlayer extends AbstractCombatant {
 
             for (int i = 0; i < availableActions.size(); i++) {
                 Action action = availableActions.get(i);
-                String suffix = "";
-                int remainingTurns = getCooldownTracker().getRemainingTurns(action.getName());
-                if (remainingTurns > 0) {
-                    suffix = " (Cooldown: " + remainingTurns + ")";
-                }
+                String suffix = describeActionRestriction(action, battleView);
                 System.out.println((i + 1) + ". " + action.getName() + suffix);
             }
 
             int choice = readChoice(1, availableActions.size());
             Action chosenAction = availableActions.get(choice - 1);
             clearSelectedItem();
+
+            if (!chosenAction.canExecute(this, battleView)) {
+                System.out.println("That action cannot be used right now.");
+                continue;
+            }
 
             if (chosenAction instanceof UseItemAction) {
                 Item item = chooseInventoryItem(battleView);
@@ -79,12 +80,6 @@ public abstract class AbstractPlayer extends AbstractCombatant {
                     continue;
                 }
                 selectedItem = item;
-            }
-
-            if (!chosenAction.canExecute(this, battleView)) {
-                System.out.println("That action cannot be used right now.");
-                clearSelectedItem();
-                continue;
             }
 
             return chosenAction;
@@ -111,6 +106,9 @@ public abstract class AbstractPlayer extends AbstractCombatant {
             }
             if (selectedItem instanceof PowerStoneItem) {
                 Action specialSkill = findSpecialSkill();
+                if (specialSkill == null) {
+                    return null;
+                }
                 if (specialSkill instanceof ArcaneBlastAction) {
                     return new SimpleActionTarget(battleView.getLivingOpponentsOf(this), battleContext);
                 }
@@ -120,6 +118,20 @@ public abstract class AbstractPlayer extends AbstractCombatant {
         }
 
         return chooseSingleEnemyTarget(battleView, battleContext);
+    }
+
+    private String describeActionRestriction(Action action, BattleView battleView) {
+        int remainingTurns = getCooldownTracker().getRemainingTurns(action.getName());
+        if (remainingTurns > 0) {
+            return " (Cooldown: " + remainingTurns + ")";
+        }
+        if (action instanceof UseItemAction && !hasUsableItem(battleView)) {
+            return " (No usable items)";
+        }
+        if (!action.canExecute(this, battleView)) {
+            return " (Unavailable)";
+        }
+        return "";
     }
 
     private ActionTarget chooseSingleEnemyTarget(BattleView battleView, BattleContext battleContext) {
@@ -139,6 +151,15 @@ public abstract class AbstractPlayer extends AbstractCombatant {
         }
         int choice = readChoice(1, enemies.size());
         return new SimpleActionTarget(enemies.get(choice - 1), battleContext);
+    }
+
+    private boolean hasUsableItem(BattleView battleView) {
+        for (Item item : inventory.getItems()) {
+            if (item.canUse(this, battleView)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Item chooseInventoryItem(BattleView battleView) {
