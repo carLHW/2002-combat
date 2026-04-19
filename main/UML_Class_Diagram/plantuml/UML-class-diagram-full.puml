@@ -1,0 +1,391 @@
+@startuml
+' Detailed class diagram generated from the current src package structure.
+skinparam Style strictuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 55
+skinparam ranksep 55
+skinparam packageStyle rectangle
+top to bottom direction
+
+skinparam class {
+  BorderColor #334155
+  ArrowColor #334155
+  FontColor #111827
+}
+
+title Turn-Based Combat - UML Class Diagram
+
+package "UI\n(src/Main.java, src/ui)" #DBEAFE {
+  class Main <<entry point>> {
+    +main(args: String[]): void
+  }
+
+  class GameCLI <<boundary>> {
+    -scanner: Scanner
+    -lastReplayRequested: boolean
+    +run(): void
+    -runSingleGame(): boolean
+    -createPlayer(): AbstractPlayer
+    -chooseDifficulty(): Difficulty
+    -showBattleResult(result: BattleResult): void
+  }
+
+  Main --> GameCLI
+}
+
+package "Combatant Hierarchy\n(src/api, src/model, src/combatants)" #DCFCE7 {
+  interface Combatant {
+    +getName(): String
+    +getTeam(): Team
+    +getCurrentHp(): int
+    +getActions(): List<Action>
+    +getStatusEffects(): List<StatusEffect>
+    +receiveDamage(amount: int): void
+    +heal(amount: int): void
+    +chooseAction(view: BattleView): Action
+    +chooseTarget(action: Action, view: BattleView, context: BattleContext): ActionTarget
+  }
+
+  enum Team {
+    PLAYER
+    ENEMY
+  }
+
+  abstract class AbstractCombatant {
+    -name: String
+    -team: Team
+    -maxHp: int
+    -currentHp: int
+    -attack: int
+    -defense: int
+    -speed: int
+    -actions: List<Action>
+    -statusEffects: List<StatusEffect>
+    -cooldownTracker: CooldownTracker
+    #addAction(action: Action): void
+    +canAct(context: BattleContext): boolean
+    +removeExpiredEffects(context: BattleContext): void
+  }
+
+  abstract class AbstractPlayer {
+    {static} -sharedScanner: Scanner
+    -inventory: Inventory
+    -selectedItem: Item
+    +getInventory(): Inventory
+    +getSelectedItem(): Item
+    +clearSelectedItem(): void
+  }
+
+  abstract class AbstractEnemy {
+    #AbstractEnemy(name: String, maxHp: int, attack: int, defense: int, speed: int)
+    +chooseAction(view: BattleView): Action
+    +chooseTarget(action: Action, view: BattleView, context: BattleContext): ActionTarget
+  }
+
+  class Warrior {
+    +Warrior(name: String)
+  }
+
+  class Wizard {
+    +Wizard(name: String)
+  }
+
+  class Goblin {
+    +Goblin(name: String)
+  }
+
+  class Wolf {
+    +Wolf(name: String)
+  }
+
+  class Inventory {
+    -items: List<Item>
+    +addItem(item: Item): void
+    +getItems(): List<Item>
+    +consume(item: Item): void
+    +hasItems(): boolean
+  }
+
+  interface CooldownTracker {
+    +isReady(key: String): boolean
+    +startCooldown(key: String, turns: int): void
+    +reduceCooldownOnTurnTaken(): void
+    +getRemainingTurns(key: String): int
+  }
+
+  class SimpleCooldownTracker {
+    -cooldowns: Map<String, Integer>
+  }
+
+  Combatant <|.. AbstractCombatant
+  AbstractCombatant <|-- AbstractPlayer
+  AbstractCombatant <|-- AbstractEnemy
+  AbstractPlayer <|-- Warrior
+  AbstractPlayer <|-- Wizard
+  AbstractEnemy <|-- Goblin
+  AbstractEnemy <|-- Wolf
+  AbstractCombatant --> Team
+  AbstractPlayer *-- Inventory
+  AbstractCombatant *-- SimpleCooldownTracker : owns
+  CooldownTracker <|.. SimpleCooldownTracker
+}
+
+package "Action System\n(src/api, src/actions)" #FEF3C7 {
+  interface Action {
+    +getName(): String
+    +canExecute(user: Combatant, view: BattleView): boolean
+    +execute(user: Combatant, target: ActionTarget): void
+  }
+
+  class BasicAttackAction {
+    +getName(): String
+    +canExecute(user: Combatant, view: BattleView): boolean
+    +execute(user: Combatant, target: ActionTarget): void
+  }
+
+  class DefendAction {
+    +getName(): String
+    +canExecute(user: Combatant, view: BattleView): boolean
+    +execute(user: Combatant, target: ActionTarget): void
+  }
+
+  class ShieldBashAction {
+    +getName(): String
+    +canExecute(user: Combatant, view: BattleView): boolean
+    +execute(user: Combatant, target: ActionTarget): void
+  }
+
+  class ArcaneBlastAction {
+    +getName(): String
+    +canExecute(user: Combatant, view: BattleView): boolean
+    +execute(user: Combatant, target: ActionTarget): void
+  }
+
+  class UseItemAction {
+    +getName(): String
+    +canExecute(user: Combatant, view: BattleView): boolean
+    +execute(user: Combatant, target: ActionTarget): void
+  }
+
+  Action <|.. BasicAttackAction
+  Action <|.. DefendAction
+  Action <|.. ShieldBashAction
+  Action <|.. ArcaneBlastAction
+  Action <|.. UseItemAction
+}
+
+package "Item System\n(src/api, src/items)" #FFEDD5 {
+  interface Item {
+    +getName(): String
+    +canUse(user: AbstractPlayer, view: BattleView): boolean
+    +use(user: AbstractPlayer, target: ActionTarget): void
+  }
+
+  class PotionItem {
+    -healAmount: int
+    +PotionItem(healAmount: int)
+    +getName(): String
+    +canUse(user: AbstractPlayer, view: BattleView): boolean
+    +use(user: AbstractPlayer, target: ActionTarget): void
+  }
+
+  class PowerStoneItem {
+    +getName(): String
+    +canUse(user: AbstractPlayer, view: BattleView): boolean
+    +use(user: AbstractPlayer, target: ActionTarget): void
+    -isSpecialSkill(action: Action): boolean
+  }
+
+  class SmokeBombItem {
+    +getName(): String
+    +canUse(user: AbstractPlayer, view: BattleView): boolean
+    +use(user: AbstractPlayer, target: ActionTarget): void
+  }
+
+  class SmokeBombStatusEffect <<private static>> {
+    {static} -DEFENSE_BONUS: int
+    -SmokeBombStatusEffect()
+    +getName(): String
+    +onApply(target: Combatant, context: BattleContext): void
+    +onRoundEnd(target: Combatant, context: BattleContext): void
+    +onExpire(target: Combatant, context: BattleContext): void
+  }
+
+  Item <|.. PotionItem
+  Item <|.. PowerStoneItem
+  Item <|.. SmokeBombItem
+  SmokeBombItem +-- SmokeBombStatusEffect
+}
+
+package "Status Effect System\n(src/api, src/model, src/effects)" #FDE68A {
+  interface StatusEffect {
+    +getName(): String
+    +onApply(target: Combatant, context: BattleContext): void
+    +onTurnStart(target: Combatant, context: BattleContext): void
+    +onTurnEnd(target: Combatant, context: BattleContext): void
+    +onRoundEnd(target: Combatant, context: BattleContext): void
+    +preventsAction(target: Combatant, context: BattleContext): boolean
+    +isExpired(): boolean
+    +onExpire(target: Combatant, context: BattleContext): void
+  }
+
+  abstract class AbstractStatusEffect {
+    -name: String
+    -remainingRounds: int
+    #AbstractStatusEffect(remainingRounds: int)
+    #reduceRoundsByOne(): void
+    #getRemainingRounds(): int
+    +onApply(target: Combatant, context: BattleContext): void
+    +onTurnStart(target: Combatant, context: BattleContext): void
+    +onTurnEnd(target: Combatant, context: BattleContext): void
+    +onRoundEnd(target: Combatant, context: BattleContext): void
+    +preventsAction(target: Combatant, context: BattleContext): boolean
+    +isExpired(): boolean
+    +onExpire(target: Combatant, context: BattleContext): void
+  }
+
+  class DefendStatusEffect {
+    -defenseBonus: int
+    +DefendStatusEffect(defenseBonus: int)
+    +getName(): String
+    +onApply(target: Combatant, context: BattleContext): void
+    +onRoundEnd(target: Combatant, context: BattleContext): void
+    +onExpire(target: Combatant, context: BattleContext): void
+  }
+
+  class StunStatusEffect {
+    +StunStatusEffect(turnsToSkip: int)
+    +getName(): String
+    +preventsAction(target: Combatant, context: BattleContext): boolean
+    +onTurnEnd(target: Combatant, context: BattleContext): void
+  }
+
+  StatusEffect <|.. AbstractStatusEffect
+  AbstractStatusEffect <|-- DefendStatusEffect
+  AbstractStatusEffect <|-- StunStatusEffect
+  AbstractStatusEffect <|-- SmokeBombStatusEffect
+}
+
+package "Targeting\n(src/api, src/model)" #E0F2FE {
+  interface ActionTarget {
+    +primaryTarget(): Combatant
+    +targets(): List<Combatant>
+    +context(): BattleContext
+  }
+
+  class SimpleActionTarget {
+    -targets: List<Combatant>
+    -context: BattleContext
+  }
+
+  ActionTarget <|.. SimpleActionTarget
+}
+
+package "Battle Engine and Turn Order\n(src/api, src/model, src/engine)" #FCE7F3 {
+  interface TurnOrderStrategy {
+    +sort(combatants: List<Combatant>): List<Combatant>
+  }
+
+  class SpeedTurnOrderStrategy {
+    +sort(combatants: List<Combatant>): List<Combatant>
+  }
+
+  interface BattleView {
+    +getRoundNumber(): int
+    +getLivingCombatants(): List<Combatant>
+    +getLivingOpponentsOf(combatant: Combatant): List<Combatant>
+    +getLivingAlliesOf(combatant: Combatant): List<Combatant>
+  }
+
+  interface BattleContext {
+    +log(message: String): void
+    +getLivingOpponentsOf(combatant: Combatant): List<Combatant>
+    +getLivingAlliesOf(combatant: Combatant): List<Combatant>
+    +registerDefeat(target: Combatant, defeatedBy: Combatant): void
+    +getRoundNumber(): int
+  }
+
+  class BattleEngine <<control>> {
+    -turnOrderStrategy: TurnOrderStrategy
+    -combatants: List<Combatant>
+    -backupSpawn: List<Combatant>
+    -backupSpawned: boolean
+    -roundNumber: int
+    +runBattle(): BattleResult
+    +getLivingCombatants(): List<Combatant>
+    +getLivingOpponentsOf(combatant: Combatant): List<Combatant>
+    +getLivingAlliesOf(combatant: Combatant): List<Combatant>
+  }
+
+  class DefaultBattleView {
+    -battleEngine: BattleEngine
+    +DefaultBattleView(battleEngine: BattleEngine)
+    +getRoundNumber(): int
+    +getLivingCombatants(): List<Combatant>
+    +getLivingOpponentsOf(combatant: Combatant): List<Combatant>
+    +getLivingAlliesOf(combatant: Combatant): List<Combatant>
+  }
+
+  class DefaultBattleContext {
+    -battleEngine: BattleEngine
+    +DefaultBattleContext(battleEngine: BattleEngine)
+    +log(message: String): void
+    +getLivingOpponentsOf(combatant: Combatant): List<Combatant>
+    +getLivingAlliesOf(combatant: Combatant): List<Combatant>
+    +registerDefeat(target: Combatant, defeatedBy: Combatant): void
+    +getRoundNumber(): int
+  }
+  class BattleResult <<record>> {
+    +winner(): Team
+    +roundsCompleted(): int
+  }
+
+  BattleView <|.. DefaultBattleView
+  BattleContext <|.. DefaultBattleContext
+  TurnOrderStrategy <|.. SpeedTurnOrderStrategy
+  BattleEngine *-- SpeedTurnOrderStrategy : owns strategy
+  BattleEngine ..> DefaultBattleView : creates
+  BattleEngine ..> DefaultBattleContext : creates
+  BattleEngine --> BattleResult
+}
+
+package "Level Setup\n(src/level)" #EDE9FE {
+  enum Difficulty {
+    EASY
+    MEDIUM
+    HARD
+  }
+
+  class LevelFactory <<factory>> {
+    {static} +createLevel(difficulty: Difficulty): LevelSetup
+  }
+
+  class LevelSetup <<record>> {
+    +initialEnemies(): List<Combatant>
+    +backupEnemies(): List<Combatant>
+  }
+
+  LevelFactory --> LevelSetup
+}
+
+GameCLI --> LevelFactory
+GameCLI --> BattleEngine
+
+Inventory ..> Item : stores items
+UseItemAction ..> Item : executes selected item
+LevelSetup ..> Combatant : stores enemy lists
+
+legend bottom
+|= OO concept |= Where it appears |
+| Encapsulation | AbstractCombatant keeps HP, stats, actions, effects and cooldowns private. |
+| Abstraction | Combatant, Action, Item, StatusEffect, BattleView and BattleContext define stable contracts. |
+| Polymorphism | BattleEngine executes Action and manages Combatant objects through interfaces. |
+| Inheritance | Warrior/Wizard and Goblin/Wolf reuse the abstract combatant hierarchy. |
+| Composition | AbstractPlayer owns Inventory; BattleEngine owns its TurnOrderStrategy. |
+| Strategy | TurnOrderStrategy lets turn ordering be replaced without changing BattleEngine. |
+| Factory | LevelFactory creates LevelSetup objects for the selected Difficulty. |
+endlegend
+@enduml
