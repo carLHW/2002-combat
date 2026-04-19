@@ -38,8 +38,8 @@ public final class ShieldBashAction implements Action {
         enemy.receiveDamage(damage);
         int newHp = enemy.getCurrentHp();
 
-        String logMsg = user.getName() + " → Shield Bash → " + enemy.getName()
-                + ": HP: " + oldHp + " → " + newHp;
+        String logMsg = user.getName() + " -> Shield Bash -> " + enemy.getName()
+                + ": HP: " + oldHp + " -> " + newHp;
 
         if (!enemy.isAlive()) {
             target.context().registerDefeat(enemy, user);
