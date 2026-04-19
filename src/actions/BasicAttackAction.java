@@ -44,8 +44,8 @@ public final class BasicAttackAction implements Action {
 
         enemy.receiveDamage(damage);
         int newHp = enemy.getCurrentHp();
-        String logMsg = user.getName() + " → BasicAttack → " + enemy.getName()
-                + ": HP: " + oldHp + " → " + newHp;
+        String logMsg = user.getName() + " -> BasicAttack -> " + enemy.getName()
+                + ": HP: " + oldHp + " -> " + newHp;
 
         if (!enemy.isAlive()) {
             target.context().registerDefeat(enemy, user);

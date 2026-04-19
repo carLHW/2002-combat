@@ -28,7 +28,7 @@ public final class ArcaneBlastAction implements Action {
     @Override
     public void execute(Combatant user, ActionTarget target) {
         List<Combatant> enemies = target.targets();
-        String logMsg = user.getName() + " → Arcane Blast → All Enemies: ";
+        String logMsg = user.getName() + " -> Arcane Blast -> All Enemies: ";
         int oldAtk = user.getAttack();
 
         for (int i = 0; i < enemies.size(); i++) {
@@ -39,14 +39,14 @@ public final class ArcaneBlastAction implements Action {
                 enemy.receiveDamage(damage);
                 int newHp = enemy.getCurrentHp();
 
-                logMsg += enemy.getName() + " HP: " + oldHp + " → " + newHp;
+                logMsg += enemy.getName() + " HP: " + oldHp + " -> " + newHp;
 
                 if (!enemy.isAlive()) {
                     logMsg += " X ELIMINATED";
                     target.context().registerDefeat(enemy, user);
                     user.modifyAttack(10);
                     logMsg += " (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + damage
-                            + ") | ATK: " + oldAtk + " → " + user.getAttack() + " (+10)";
+                            + ") | ATK: " + oldAtk + " -> " + user.getAttack() + " (+10)";
                 } else {
                     logMsg += " (dmg: " + oldAtk + "-" + enemy.getDefense() + "=" + damage + ")";
                 }
