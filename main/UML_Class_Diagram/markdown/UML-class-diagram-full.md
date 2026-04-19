@@ -397,6 +397,13 @@ class LevelSetup {
   +backupEnemies() List~Combatant~
 }
 
+note for AbstractCombatant "Encapsulation: private combat state is changed through public methods"
+note for Combatant "Abstraction: common fighter contract for players and enemies"
+note for Action "Polymorphism: engine executes any Action implementation"
+note for AbstractPlayer "Inheritance: Warrior and Wizard reuse player behavior"
+note for TurnOrderStrategy "Strategy pattern: turn ordering can be replaced"
+note for LevelFactory "Factory pattern: creates level setup from difficulty"
+
 style Main fill:#DBEAFE,stroke:#2563EB,color:#111827
 style GameCLI fill:#DBEAFE,stroke:#2563EB,color:#111827
 

@@ -7,6 +7,7 @@
 - [Implementation-Focused UML](main/UML_Class_Diagram/markdown/UML-class-diagram-implementation-focused.md)
 - [UML Class Diagram SVG](main/UML_Class_Diagram/svg/UML-class-diagram-simplified.svg)
 - [UML Explanation](main/UML_Class_Diagram/UML_Diagram_Explanation.txt)
+- [Report](main/REPORT.md)
 - [Source Code](src/)
 
 Main code is in `src/`.
@@ -33,6 +34,13 @@ This version shows all classes with their complete methods — useful when imple
 
 - [Full UML Markdown](main/UML_Class_Diagram/markdown/UML-class-diagram-full.md)
 - [Full UML SVG](main/UML_Class_Diagram/svg/UML-class-diagram-full.svg)
+- [Full UML PNG](main/UML_Class_Diagram/png/UML-class-diagram-full.png)
+
+### Sequence Diagram
+
+- [Sequence Diagram Markdown](main/UML_Sequence_Diagram/markdown/battle-sequence-diagram.md)
+- [Sequence Diagram SVG](main/UML_Sequence_Diagram/svg/battle-sequence-diagram.svg)
+- [Sequence Diagram PNG](main/UML_Sequence_Diagram/png/battle-sequence-diagram.png)
 
 ### Teammate Work Areas (Color-Coded)
 
