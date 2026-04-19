@@ -8,7 +8,7 @@ import api.BattleView;
 import api.Item;
 import model.AbstractPlayer;
 
-// TODO: if special-skill identification is refactored later, update this item too.
+// if special-skill identification is refactored later, update this item too.
 public final class PowerStoneItem implements Item {
     @Override
     public String getName() {
@@ -33,7 +33,7 @@ public final class PowerStoneItem implements Item {
 
         int previousCooldown = user.getCooldownTracker().getRemainingTurns(specialSkill.getName());
         specialSkill.execute(user, target);
-        user.getCooldownTracker().startCooldown(specialSkill.getName(), previousCooldown);
+        user.getCooldownTracker().startCooldown(specialSkill.getName(), previousCooldown+1);
 
         if (target != null && target.context() != null) {
             target.context().log(user.getName() + " used Power Stone to trigger " + specialSkill.getName() + ".");
