@@ -97,3 +97,4 @@ Conclusion
 - The UML diagrams show the main relationships and responsibilities needed for the assignment.
 - They intentionally keep only the important classes.
 - Together, the three diagrams show the same system at different levels of implementation detail.
+- May be outdated, but the UML Diagram is the source of truth
