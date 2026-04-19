@@ -1,19 +1,41 @@
-# UML Class Diagram (Full)
+# UML Class Diagram (Current Repo)
 
 - Purpose:
-  - show the full important design in one place
-  - combine the detailed shared structure and the detailed gameplay classes
+  - show the current implementation as it exists in `src`
+  - include the concrete support classes that the older UML omitted
 - Scope:
-  - only the important classes needed for the assignment are shown
-  - unnecessary helper implementation classes are omitted to keep the diagram readable
+  - all current source classes, interfaces, records, and enums are represented
+  - private helpers are included where they are important to the current structure
 
 ```mermaid
 classDiagram
 direction TB
 
+class Main {
+  +main(args : String[]) void
+}
+
 class GameCLI {
+  -ITEM_COUNT : int
+  -POTION_CHOICE : int
+  -POWER_STONE_CHOICE : int
   -scanner : Scanner
+  +GameCLI(scanner : Scanner)
   +start() void
+  -showWelcomeScreen() void
+  -choosePlayerOption() int
+  -chooseDifficultyOption() int
+  -chooseItemChoices() int[]
+  -buildPlayer(playerChoice : int) Combatant
+  -difficultyFromChoice(difficultyChoice : int) Difficulty
+  -applyStartingItems(player : Combatant, itemChoices : int[]) void
+  -showSetupSummary(player : Combatant, difficulty : Difficulty) void
+  -showStartingItems(player : Combatant) void
+  -showBattleStart() void
+  -showItemOptions() void
+  -createItem(choice : int) Item
+  -showEndScreen(result : BattleResult, player : Combatant, engine : BattleEngine) int
+  -readChoice(min : int, max : int) int
 }
 
 class Combatant {
@@ -29,62 +51,62 @@ class Combatant {
   +getActions() List~Action~
   +getStatusEffects() List~StatusEffect~
   +getCooldownTracker() CooldownTracker
-  +receiveDamage(amount) void
-  +heal(amount) void
-  +modifyAttack(delta) void
-  +modifyDefense(delta) void
-  +addStatusEffect(effect, context) void
-  +removeExpiredEffects(context) void
-  +canAct(context) boolean
-  +chooseAction(view) Action
-  +chooseTarget(action, view, context) ActionTarget
+  +receiveDamage(amount : int) void
+  +heal(amount : int) void
+  +modifyAttack(delta : int) void
+  +modifyDefense(delta : int) void
+  +addStatusEffect(effect : StatusEffect, battleContext : BattleContext) void
+  +removeExpiredEffects(battleContext : BattleContext) void
+  +canAct(battleContext : BattleContext) boolean
+  +chooseAction(battleView : BattleView) Action
+  +chooseTarget(action : Action, battleView : BattleView, battleContext : BattleContext) ActionTarget
 }
 
 class Action {
   <<interface>>
   +getName() String
-  +canExecute(user, battleView) boolean
-  +execute(user, target) void
+  +canExecute(user : Combatant, battleView : BattleView) boolean
+  +execute(user : Combatant, target : ActionTarget) void
 }
 
 class StatusEffect {
   <<interface>>
   +getName() String
-  +onApply(target, context) void
-  +onTurnStart(target, context) void
-  +onTurnEnd(target, context) void
-  +onRoundEnd(target, context) void
-  +preventsAction(target, context) boolean
+  +onApply(target : Combatant, battleContext : BattleContext) void
+  +onTurnStart(target : Combatant, battleContext : BattleContext) void
+  +onTurnEnd(target : Combatant, battleContext : BattleContext) void
+  +onRoundEnd(target : Combatant, battleContext : BattleContext) void
+  +preventsAction(target : Combatant, battleContext : BattleContext) boolean
   +isExpired() boolean
-  +onExpire(target, context) void
+  +onExpire(target : Combatant, battleContext : BattleContext) void
 }
 
 class Item {
   <<interface>>
   +getName() String
-  +canUse(user, battleView) boolean
-  +use(user, target) void
+  +canUse(user : AbstractPlayer, battleView : BattleView) boolean
+  +use(user : AbstractPlayer, target : ActionTarget) void
 }
 
 class TurnOrderStrategy {
   <<interface>>
-  +sort(combatants) List~Combatant~
+  +sort(combatants : List~Combatant~) List~Combatant~
 }
 
 class CooldownTracker {
   <<interface>>
-  +isReady(key) boolean
-  +startCooldown(key, turns) void
+  +isReady(key : String) boolean
+  +startCooldown(key : String, turns : int) void
   +reduceCooldownOnTurnTaken() void
-  +getRemainingTurns(key) int
+  +getRemainingTurns(key : String) int
 }
 
 class BattleContext {
   <<interface>>
-  +log(message) void
-  +getLivingOpponentsOf(combatant) List~Combatant~
-  +getLivingAlliesOf(combatant) List~Combatant~
-  +registerDefeat(target, defeatedBy) void
+  +log(message : String) void
+  +getLivingOpponentsOf(combatant : Combatant) List~Combatant~
+  +getLivingAlliesOf(combatant : Combatant) List~Combatant~
+  +registerDefeat(target : Combatant, defeatedBy : Combatant) void
   +getRoundNumber() int
 }
 
@@ -92,8 +114,8 @@ class BattleView {
   <<interface>>
   +getRoundNumber() int
   +getLivingCombatants() List~Combatant~
-  +getLivingOpponentsOf(combatant) List~Combatant~
-  +getLivingAlliesOf(combatant) List~Combatant~
+  +getLivingOpponentsOf(combatant : Combatant) List~Combatant~
+  +getLivingAlliesOf(combatant : Combatant) List~Combatant~
 }
 
 class ActionTarget {
@@ -103,141 +125,259 @@ class ActionTarget {
   +context() BattleContext
 }
 
+class Team {
+  <<enumeration>>
+  PLAYER
+  ENEMY
+}
+
 class AbstractCombatant {
   <<abstract>>
   -name : String
   -team : Team
   -maxHp : int
-  -currentHp : int
-  -attack : int
-  -defense : int
   -speed : int
   -actions : List~Action~
   -statusEffects : List~StatusEffect~
   -cooldownTracker : CooldownTracker
+  -currentHp : int
+  -attack : int
+  -defense : int
+  #AbstractCombatant(name : String, team : Team, maxHp : int, attack : int, defense : int, speed : int)
+  #addAction(action : Action) void
+  +getName() String
+  +getTeam() Team
+  +getMaxHp() int
+  +getCurrentHp() int
+  +getAttack() int
+  +getDefense() int
+  +getSpeed() int
+  +isAlive() boolean
+  +getActions() List~Action~
+  +getStatusEffects() List~StatusEffect~
+  +getCooldownTracker() CooldownTracker
+  +receiveDamage(amount : int) void
+  +heal(amount : int) void
+  +modifyAttack(delta : int) void
+  +modifyDefense(delta : int) void
+  +addStatusEffect(effect : StatusEffect, battleContext : BattleContext) void
+  +removeExpiredEffects(battleContext : BattleContext) void
+  +canAct(battleContext : BattleContext) boolean
+  +chooseAction(battleView : BattleView) Action
+  +chooseTarget(action : Action, battleView : BattleView, battleContext : BattleContext) ActionTarget
+  -isSelfTargetAction(action : Action) boolean
+  -isMultiTargetAction(action : Action) boolean
 }
 
 class AbstractPlayer {
   <<abstract>>
+  -sharedScanner : Scanner
   -inventory : Inventory
+  -selectedItem : Item
+  #AbstractPlayer(name : String, maxHp : int, attack : int, defense : int, speed : int)
+  +setSharedScanner(scanner : Scanner) void
   +getInventory() Inventory
-  +chooseTarget(action, view, context) ActionTarget
+  +getSelectedItem() Item
+  +clearSelectedItem() void
+  +chooseAction(battleView : BattleView) Action
+  +chooseTarget(action : Action, battleView : BattleView, battleContext : BattleContext) ActionTarget
+  -describeActionRestriction(action : Action, battleView : BattleView) String
+  -chooseSingleEnemyTarget(battleView : BattleView, battleContext : BattleContext) ActionTarget
+  -hasUsableItem(battleView : BattleView) boolean
+  -chooseInventoryItem(battleView : BattleView) Item
+  -findSpecialSkill() Action
+  -readChoice(min : int, max : int) int
 }
 
 class AbstractEnemy {
   <<abstract>>
-  +chooseAction(view) Action
-  +chooseTarget(action, view, context) ActionTarget
+  #AbstractEnemy(name : String, maxHp : int, attack : int, defense : int, speed : int)
+  +chooseAction(battleView : BattleView) Action
+  +chooseTarget(action : Action, battleView : BattleView, battleContext : BattleContext) ActionTarget
 }
 
 class AbstractStatusEffect {
   <<abstract>>
   -remainingRounds : int
+  #AbstractStatusEffect(remainingRounds : int)
+  #reduceRoundsByOne() void
+  #getRemainingRounds() int
+  +onApply(target : Combatant, battleContext : BattleContext) void
+  +onTurnStart(target : Combatant, battleContext : BattleContext) void
+  +onTurnEnd(target : Combatant, battleContext : BattleContext) void
+  +onRoundEnd(target : Combatant, battleContext : BattleContext) void
+  +preventsAction(target : Combatant, battleContext : BattleContext) boolean
+  +isExpired() boolean
+  +onExpire(target : Combatant, battleContext : BattleContext) void
 }
 
 class Inventory {
   -items : List~Item~
-  +addItem(item) void
+  +addItem(item : Item) void
   +getItems() List~Item~
   +clear() void
   +hasItems() boolean
-  +consume(item) void
+  +firstUsableItem() Optional~Item~
+  +consume(item : Item) void
+}
+
+class SimpleActionTarget {
+  -targets : List~Combatant~
+  -context : BattleContext
+  +SimpleActionTarget(singleTarget : Combatant, context : BattleContext)
+  +SimpleActionTarget(multipleTargets : List~Combatant~, context : BattleContext)
+  +primaryTarget() Combatant
+  +context() BattleContext
+  +targets() List~Combatant~
+}
+
+class SimpleCooldownTracker {
+  -cooldowns : Map~String, Integer~
+  +isReady(key : String) boolean
+  +startCooldown(key : String, turns : int) void
+  +reduceCooldownOnTurnTaken() void
+  +getRemainingTurns(key : String) int
+}
+
+class SpeedTurnOrderStrategy {
+  +sort(combatants : List~Combatant~) List~Combatant~
 }
 
 class Warrior {
-  +Warrior(name)
-  +getActions() List~Action~
+  +Warrior(name : String)
 }
 
 class Wizard {
-  +Wizard(name)
-  +getActions() List~Action~
+  +Wizard(name : String)
 }
 
 class Goblin {
-  +Goblin(name)
-  +getActions() List~Action~
+  +Goblin(name : String)
 }
 
 class Wolf {
-  +Wolf(name)
-  +getActions() List~Action~
+  +Wolf(name : String)
 }
 
 class BasicAttackAction {
   +getName() String
-  +canExecute(user, view) boolean
-  +execute(user, target) void
+  +canExecute(user : Combatant, battleView : BattleView) boolean
+  +execute(user : Combatant, target : ActionTarget) void
 }
 
 class DefendAction {
   +getName() String
-  +canExecute(user, view) boolean
-  +execute(user, target) void
+  +canExecute(user : Combatant, battleView : BattleView) boolean
+  +execute(user : Combatant, target : ActionTarget) void
 }
 
 class ShieldBashAction {
   +getName() String
-  +canExecute(user, view) boolean
-  +execute(user, target) void
+  +canExecute(user : Combatant, battleView : BattleView) boolean
+  +execute(user : Combatant, target : ActionTarget) void
 }
 
 class ArcaneBlastAction {
   +getName() String
-  +canExecute(user, view) boolean
-  +execute(user, target) void
+  +canExecute(user : Combatant, battleView : BattleView) boolean
+  +execute(user : Combatant, target : ActionTarget) void
 }
 
 class UseItemAction {
   +getName() String
-  +canExecute(user, view) boolean
-  +execute(user, target) void
+  +canExecute(user : Combatant, battleView : BattleView) boolean
+  +execute(user : Combatant, target : ActionTarget) void
 }
 
 class DefendStatusEffect {
   -defenseBonus : int
+  +DefendStatusEffect(defenseBonus : int)
   +getName() String
-  +onApply(target, context) void
-  +onRoundEnd(target, context) void
-  +onExpire(target, context) void
+  +onApply(target : Combatant, battleContext : BattleContext) void
+  +onRoundEnd(target : Combatant, battleContext : BattleContext) void
+  +onExpire(target : Combatant, battleContext : BattleContext) void
 }
 
 class StunStatusEffect {
+  +StunStatusEffect(turnsToSkip : int)
   +getName() String
-  +preventsAction(target, context) boolean
-  +onTurnEnd(target, context) void
+  +preventsAction(target : Combatant, battleContext : BattleContext) boolean
+  +onTurnEnd(target : Combatant, battleContext : BattleContext) void
 }
 
 class PotionItem {
   -healAmount : int
+  +PotionItem(healAmount : int)
   +getName() String
-  +canUse(user, view) boolean
-  +use(user, target) void
+  +canUse(user : AbstractPlayer, battleView : BattleView) boolean
+  +use(user : AbstractPlayer, target : ActionTarget) void
 }
 
 class PowerStoneItem {
   +getName() String
-  +canUse(user, view) boolean
-  +use(user, target) void
+  +canUse(user : AbstractPlayer, battleView : BattleView) boolean
+  +use(user : AbstractPlayer, target : ActionTarget) void
+  -isSpecialSkill(action : Action) boolean
 }
 
 class SmokeBombItem {
   +getName() String
-  +canUse(user, view) boolean
-  +use(user, target) void
+  +canUse(user : AbstractPlayer, battleView : BattleView) boolean
+  +use(user : AbstractPlayer, target : ActionTarget) void
+}
+
+class SmokeBombStatusEffect {
+  <<private static>>
+  -DEFENSE_BONUS : int
+  -SmokeBombStatusEffect()
+  +getName() String
+  +onApply(target : Combatant, battleContext : BattleContext) void
+  +onRoundEnd(target : Combatant, battleContext : BattleContext) void
+  +onExpire(target : Combatant, battleContext : BattleContext) void
 }
 
 class BattleEngine {
   -turnOrderStrategy : TurnOrderStrategy
   -combatants : List~Combatant~
   -backupSpawn : List~Combatant~
+  -backupSpawned : boolean
   -roundNumber : int
+  +BattleEngine(turnOrderStrategy : TurnOrderStrategy, initialCombatants : List~Combatant~, backupSpawn : List~Combatant~)
   +runBattle() BattleResult
+  -isBattleActive() boolean
+  -hasLivingPlayers() boolean
+  -hasLivingEnemies() boolean
+  -determineWinner() Team
+  -spawnBackupIfNeeded(context : BattleContext) void
+  +getRoundNumber() int
+  +getLivingCombatants() List~Combatant~
+  +getLivingOpponentsOf(combatant : Combatant) List~Combatant~
+  +getLivingAlliesOf(combatant : Combatant) List~Combatant~
+}
+
+class DefaultBattleView {
+  -battleEngine : BattleEngine
+  +DefaultBattleView(battleEngine : BattleEngine)
+  +getRoundNumber() int
+  +getLivingCombatants() List~Combatant~
+  +getLivingOpponentsOf(combatant : Combatant) List~Combatant~
+  +getLivingAlliesOf(combatant : Combatant) List~Combatant~
+}
+
+class DefaultBattleContext {
+  -battleEngine : BattleEngine
+  +DefaultBattleContext(battleEngine : BattleEngine)
+  +log(message : String) void
+  +getLivingOpponentsOf(combatant : Combatant) List~Combatant~
+  +getLivingAlliesOf(combatant : Combatant) List~Combatant~
+  +registerDefeat(target : Combatant, defeatedBy : Combatant) void
+  +getRoundNumber() int
 }
 
 class BattleResult {
-  +winner : Team
-  +roundsCompleted : int
+  <<record>>
+  +winner() Team
+  +roundsCompleted() int
 }
 
 class Difficulty {
@@ -248,20 +388,16 @@ class Difficulty {
 }
 
 class LevelFactory {
-  +createLevel(difficulty) LevelSetup
+  +createLevel(difficulty : Difficulty) LevelSetup
 }
 
 class LevelSetup {
-  +initialEnemies : List~Combatant~
-  +backupEnemies : List~Combatant~
+  <<record>>
+  +initialEnemies() List~Combatant~
+  +backupEnemies() List~Combatant~
 }
 
-class Team {
-  <<enumeration>>
-  PLAYER
-  ENEMY
-}
-
+style Main fill:#DBEAFE,stroke:#2563EB,color:#111827
 style GameCLI fill:#DBEAFE,stroke:#2563EB,color:#111827
 
 style Combatant fill:#DCFCE7,stroke:#16A34A,color:#111827
@@ -288,22 +424,40 @@ style StatusEffect fill:#FEF3C7,stroke:#D97706,color:#111827
 style AbstractStatusEffect fill:#FEF3C7,stroke:#D97706,color:#111827
 style DefendStatusEffect fill:#FEF3C7,stroke:#D97706,color:#111827
 style StunStatusEffect fill:#FEF3C7,stroke:#D97706,color:#111827
+style SmokeBombStatusEffect fill:#FEF3C7,stroke:#D97706,color:#111827
 
 style TurnOrderStrategy fill:#FCE7F3,stroke:#BE185D,color:#111827
+style SpeedTurnOrderStrategy fill:#FCE7F3,stroke:#BE185D,color:#111827
 style BattleEngine fill:#FCE7F3,stroke:#BE185D,color:#111827
 style BattleResult fill:#FCE7F3,stroke:#BE185D,color:#111827
 style Difficulty fill:#FCE7F3,stroke:#BE185D,color:#111827
 style LevelFactory fill:#FCE7F3,stroke:#BE185D,color:#111827
 style LevelSetup fill:#FCE7F3,stroke:#BE185D,color:#111827
+style DefaultBattleView fill:#FCE7F3,stroke:#BE185D,color:#111827
+style DefaultBattleContext fill:#FCE7F3,stroke:#BE185D,color:#111827
 
 style CooldownTracker fill:#F1F5F9,stroke:#64748B,color:#111827
 style BattleContext fill:#F1F5F9,stroke:#64748B,color:#111827
 style BattleView fill:#F1F5F9,stroke:#64748B,color:#111827
 style ActionTarget fill:#F1F5F9,stroke:#64748B,color:#111827
 style Inventory fill:#F1F5F9,stroke:#64748B,color:#111827
+style SimpleActionTarget fill:#F1F5F9,stroke:#64748B,color:#111827
+style SimpleCooldownTracker fill:#F1F5F9,stroke:#64748B,color:#111827
 
+Main --> GameCLI
 GameCLI --> BattleEngine
+GameCLI --> BattleResult
 GameCLI --> LevelFactory
+GameCLI --> LevelSetup
+GameCLI --> Difficulty
+GameCLI --> Combatant
+GameCLI --> AbstractPlayer
+GameCLI --> Warrior
+GameCLI --> Wizard
+GameCLI --> PotionItem
+GameCLI --> PowerStoneItem
+GameCLI --> SmokeBombItem
+GameCLI --> SpeedTurnOrderStrategy
 
 Combatant <|.. AbstractCombatant
 AbstractCombatant <|-- AbstractPlayer
@@ -322,32 +476,78 @@ Action <|.. UseItemAction
 StatusEffect <|.. AbstractStatusEffect
 AbstractStatusEffect <|-- DefendStatusEffect
 AbstractStatusEffect <|-- StunStatusEffect
+AbstractStatusEffect <|-- SmokeBombStatusEffect
 
 Item <|.. PotionItem
 Item <|.. PowerStoneItem
 Item <|.. SmokeBombItem
 
+TurnOrderStrategy <|.. SpeedTurnOrderStrategy
+CooldownTracker <|.. SimpleCooldownTracker
+ActionTarget <|.. SimpleActionTarget
+BattleView <|.. DefaultBattleView
+BattleContext <|.. DefaultBattleContext
+
 AbstractCombatant *-- "1" CooldownTracker
+AbstractCombatant *-- "1" SimpleCooldownTracker
 AbstractCombatant o-- "0..*" Action
 AbstractCombatant o-- "0..*" StatusEffect
 AbstractCombatant --> "1" Team
+AbstractCombatant ..> SimpleActionTarget
+AbstractCombatant ..> DefendAction
+AbstractCombatant ..> ArcaneBlastAction
 
 AbstractPlayer *-- "1" Inventory
+AbstractPlayer --> "0..1" Item : selected item
+AbstractPlayer ..> UseItemAction
+AbstractPlayer ..> DefendAction
+AbstractPlayer ..> ArcaneBlastAction
+AbstractPlayer ..> PowerStoneItem
+AbstractPlayer ..> SimpleActionTarget
+
 Inventory o-- "0..*" Item
+SimpleActionTarget o-- "1..*" Combatant
+SimpleActionTarget --> "1" BattleContext
+
+Warrior ..> BasicAttackAction
+Warrior ..> DefendAction
+Warrior ..> ShieldBashAction
+Warrior ..> UseItemAction
+Wizard ..> BasicAttackAction
+Wizard ..> DefendAction
+Wizard ..> ArcaneBlastAction
+Wizard ..> UseItemAction
+Goblin ..> BasicAttackAction
+Wolf ..> BasicAttackAction
+
+BasicAttackAction ..> BattleView
+BasicAttackAction ..> ActionTarget
+DefendAction ..> DefendStatusEffect
+ShieldBashAction ..> StunStatusEffect
+ArcaneBlastAction ..> ActionTarget
+UseItemAction ..> AbstractPlayer
+UseItemAction ..> Item
+PowerStoneItem ..> Action
+PowerStoneItem ..> DefendAction
+PowerStoneItem ..> UseItemAction
+SmokeBombItem ..> SmokeBombStatusEffect
 
 BattleEngine *-- "1" TurnOrderStrategy
 BattleEngine o-- "1..*" Combatant
 BattleEngine o-- "0..*" Combatant : backup spawn
-BattleEngine --> "1" BattleResult
+BattleEngine ..> DefaultBattleView
+BattleEngine ..> DefaultBattleContext
+BattleEngine --> BattleResult
+BattleEngine --> Team
 
-Action --> Combatant
-Action --> ActionTarget
-Item --> AbstractPlayer
-StatusEffect --> Combatant
-StatusEffect --> BattleContext
-BattleEngine ..> BattleContext
-BattleEngine ..> BattleView
+DefaultBattleView --> "1" BattleEngine
+DefaultBattleContext --> "1" BattleEngine
+
+BattleResult --> Team
+LevelFactory --> Difficulty
 LevelFactory --> LevelSetup
+LevelFactory ..> Goblin
+LevelFactory ..> Wolf
 LevelSetup o-- "0..*" Combatant : initial enemies
 LevelSetup o-- "0..*" Combatant : backup enemies
 ```
