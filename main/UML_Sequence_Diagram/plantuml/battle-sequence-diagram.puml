@@ -1,0 +1,147 @@
+@startuml
+skinparam Style strictuml
+skinparam SequenceMessageAlignment center
+
+participant "Player" as P
+participant "GameCLI" as CLI
+participant "BattleEngine" as Engine
+participant "Warrior" as W
+participant "Goblin" as G
+participant "BasicAttack" as BA
+participant "Defend" as D
+participant "ShieldBash" as SB
+participant "Potion" as Pot
+
+activate Engine
+
+== 1. Enemy's Turn: Goblin Attack ==
+Engine -> G : chooseAction()
+activate G
+G --> Engine : BasicAttack
+deactivate G
+Engine -> BA : execute(Goblin, Warrior)
+activate BA
+BA -> W : receiveDamage(15)
+activate W
+W --> BA
+deactivate W
+BA --> Engine
+deactivate BA
+
+== 2. Player's Turn: Warrior Defends ==
+Engine -> W : chooseAction(view)
+activate W
+W -> CLI : showMenu()
+activate CLI
+CLI -> P : "Choose Action"
+P -> CLI : selects Defend
+CLI --> W : Action: Defend
+deactivate CLI
+W --> Engine : Action: Defend
+deactivate W
+
+Engine -> D : execute(Warrior, Warrior)
+activate D
+D -> W : addStatusEffect(DefendBuff)
+activate W
+W --> D
+deactivate W
+D --> Engine
+deactivate D
+
+== 3. Enemy's Turn: Reduced Damage ==
+Engine -> G : chooseAction()
+activate G
+G --> Engine : BasicAttack
+deactivate G
+Engine -> BA : execute(Goblin, Warrior)
+activate BA
+BA -> W : receiveDamage(5)
+note right: Damage reduced by DefendBuff
+activate W
+W --> BA
+deactivate W
+BA --> Engine
+deactivate BA
+
+== 4. Player's Turn: Shield Bash ==
+Engine -> W : chooseAction(view)
+activate W
+W -> CLI : showMenu()
+activate CLI
+P -> CLI : selects Shield Bash
+CLI --> W : Action: ShieldBash
+deactivate CLI
+W --> Engine : Action: ShieldBash
+deactivate W
+
+Engine -> SB : execute(Warrior, Goblin)
+activate SB
+SB -> G : receiveDamage(25)
+activate G
+G --> SB
+deactivate G
+SB -> G : addStatusEffect(Stun)
+activate G
+G --> SB
+deactivate G
+SB --> Engine
+deactivate SB
+
+== 5. Enemy's Turn: Stunned ==
+Engine -> G : canAct(context)
+activate G
+note right of G: IsStunned == true
+G --> Engine : skipTurn
+deactivate G
+
+== 6. Player's Turn: Use Potion ==
+Engine -> W : chooseAction(view)
+activate W
+W -> CLI : showMenu()
+activate CLI
+P -> CLI : selects Potion
+CLI --> W : Action: UseItem(Potion)
+deactivate CLI
+W --> Engine : Action: UseItem(Potion)
+deactivate W
+
+Engine -> Pot : use(Warrior)
+activate Pot
+Pot -> W : heal(100)
+activate W
+W --> Pot
+deactivate W
+Pot --> Engine
+deactivate Pot
+
+== 7. Enemy's Turn: Still Stunned ==
+Engine -> G : canAct(context)
+activate G
+G --> Engine : skipTurn
+deactivate G
+
+== 8. Player's Turn: Eliminate Goblin ==
+Engine -> W : chooseAction(view)
+activate W
+W --> Engine : BasicAttack
+deactivate W
+
+Engine -> BA : execute(Warrior, Goblin)
+activate BA
+BA -> G : receiveDamage(25)
+activate G
+note right of G: HP reaches 0
+G --> BA
+deactivate G
+BA --> Engine
+deactivate BA
+
+Engine -> Engine : registerDefeat(Goblin)
+Engine -> CLI : showVictory()
+activate CLI
+CLI --> P : "Victory!"
+deactivate CLI
+
+deactivate Engine
+@enduml
