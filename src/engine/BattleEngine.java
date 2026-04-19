@@ -45,7 +45,9 @@ public final class BattleEngine {
                 if (!current.isAlive()) {
                     continue;
                 }
-
+                
+                current.getCooldownTracker().reduceCooldownOnTurnTaken();
+                
                 for (StatusEffect effect : current.getStatusEffects()) {
                     effect.onTurnStart(current, context);
                 }
@@ -60,7 +62,6 @@ public final class BattleEngine {
                     }
                 }
 
-                current.getCooldownTracker().reduceCooldownOnTurnTaken();
                 for (StatusEffect effect : current.getStatusEffects()) {
                     effect.onTurnEnd(current, context);
                 }
