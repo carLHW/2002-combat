@@ -20,3 +20,4 @@ Main documentation is in `main/`.
 - [Sequence Diagram PlantUML](main/UML_Sequence_Diagram/plantuml/battle-sequence-diagram.puml)
 - [Sequence Diagram SVG](main/UML_Sequence_Diagram/svg/battle-sequence-diagram.svg)
 - [Sequence Diagram PNG](main/UML_Sequence_Diagram/png/battle-sequence-diagram.png)
+ 
